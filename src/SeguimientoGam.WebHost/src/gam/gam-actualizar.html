@@ -1,0 +1,118 @@
+<script src="../../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../shared-styles.html">
+<dom-module id="gam-actualizar">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 0px;
+        max-width: 400px;
+        margin: auto;
+      }
+    </style>
+    
+    <app-localstorage-document key="regionalesAutorizadas" data="{{regionalesAutorizadas}}" > </app-localstorage-document>
+    <app-localstorage-document key="regionales" data="{{regionales}}"></app-localstorage-document>
+    <app-localstorage-document key="colaboradores" data="{{colaboradores}}"></app-localstorage-document>
+
+    <form is="iron-form" method="get" action="/" id="form" class="card">
+      <div class="card-body">
+      
+      <paper-input name="Id" hidden id="id"></paper-input>     
+
+      <vaadin-combo-box name="MunicipioId" 
+        label="Municipio"
+        items="[[__municipios]]" 
+        item-label-path="Nombre" 
+        item-value-path="Id" 
+        required auto-validate 
+        id="municipioId" disabled>
+      </vaadin-combo-box>  
+            
+      <vaadin-combo-box name="EncargadoId" 
+        label="Encargado"
+        items="[[__colaboradores]]" 
+        item-label-path="Nombres" 
+        item-value-path="Id" 
+        required auto-validate
+        id="encargadoId">
+      </vaadin-combo-box>
+
+      <paper-input name="Nombre" label="Nombre del GAM" required auto-validate id="nombre" ></paper-input>     
+      </div>
+
+      <div class="card-footer center-horizontal">
+        <paper-icon-button icon="my-icons:cancel" class="giant cancel" on-tap="__cancelar"></paper-icon-button>
+        <paper-icon-button icon="my-icons:done" class="giant done" on-tap="__aceptar"  id="submitButton">
+        </paper-icon-button>
+      </div>
+      
+    </form>
+    <div style="height: 50px;"></div>
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'gam-actualizar',
+      
+      __aceptar:function(evt, src){
+
+        console.log("__sumit, form",this.$.form.serialize() );
+        
+        if( this.$.form.validate() ){ 
+          this.fire('aceptar', this.$.form.serialize());
+        }
+
+      },
+
+      __cancelar:function(evt, src){
+        
+        console.log("__sumit, form",evt, this.$.form );
+        this.fire('cancelar');
+
+      },
+      
+      __getMunicipiosRegional:function(regionalId){
+        var municipios =[];
+        if (regionalId){
+          var regional = _.find(this.regionales, function(o) { return o.Id == regionalId; });
+          municipios= regional.Municipios; 
+        }
+        return municipios;
+      },
+
+      __getColaboradoresRegional:function(regionalId){
+        var colaboradores =[];
+        if (regionalId){
+          colaboradores = _.filter(this.colaboradores, function(o) { return o.RegionalId == regionalId; });
+        }
+        return colaboradores;
+      },
+
+      reset:function(){
+        this.$.form.reset();
+      },
+
+      load:function(data){
+        
+        this.$.id.value= data.Id;
+        this.$.municipioId.value= data.MunicipioId;
+        this.$.encargadoId.value= data.EncargadoId;
+        this.$.nombre.value = data.Nombre;
+        this.__colaboradores = this.__getColaboradoresRegional(data.RegionalId);
+        this.__municipios = this.__getMunicipiosRegional(data.RegionalId);
+
+      }
+
+    });
+  </script>
+</dom-module>

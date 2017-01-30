@@ -1,0 +1,89 @@
+<script src="../../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel "import" href="../shared-styles.html">
+<link rel="import" href="../my-icons.html">
+
+<dom-module id="gam-list">
+  <template>
+    <style  include="shared-styles">
+      :host {
+        display: block;
+        padding: 0px; 
+      }
+
+      .form-icon{
+        padding-top: 8px;
+      }
+      
+    </style>
+
+    <app-localstorage-document key="colaboradores" data="{{__colaboradores}}"></app-localstorage-document>
+    <app-localstorage-document key="regionales" data="{{__regionales}}"></app-localstorage-document>
+    
+    <iron-list items="[[gams]]" as="item">
+    <template> 
+      <div>
+      <div tabindex$="[[tabIndex]]" class="card card-in-list">
+        <div class="card-header" >[[item.Nombre]]</div>
+        <div class="card-body">
+           <div>[[__regionalConMunicipio(item, __regionales)]]</div>      
+           <div>[[__encargado(item,__colaboradores)]]</div>
+        </div>
+        <div class="card-footer">
+          <paper-icon-button icon="my-icons:form"  on-tap="__encuestas"></paper-icon-button>
+          <paper-icon-button icon="my-icons:group" on-tap="__miembrosHandler"></paper-icon-button>
+          <paper-icon-button icon="my-icons:update" on-tap="__update"></paper-icon-button>
+          <paper-icon-button icon="my-icons:delete" on-tap="__delete"></paper-icon-button>
+        </div>
+      </div>
+      </div>
+    </template>
+    </iron-list>
+    
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'gam-list',
+      
+      __miembrosHandler:function(evt, src){
+        console.log("_tapHandler",  evt.model.item, evt.model.index);
+        this.fire("show-members", evt.model); 
+      },
+
+      __update:function(evt, src){
+        console.log("__update : ", evt.model.item, evt.model.index);
+        this.fire("update", evt.model);
+      },
+
+      __delete:function(evt, src){
+        console.log("__delete",  evt.model.item, evt.model.index);
+        this.fire("delete", evt.model);
+      },
+
+      __encuestas:function(evt, src){
+        this.fire("show-encuestas", evt.model);
+      },
+
+      __encargado:function(item,colaboradores){
+        if(!item) return;
+        var encargadoEncuesta = _.find( colaboradores, function(o) { return o.Id == item.EncargadoId });
+        return  encargadoEncuesta? ( encargadoEncuesta.Nombres + " " + encargadoEncuesta.Apellidos):'';
+      },
+
+      __regionalConMunicipio:function(item, regionales){
+        if(!item) return;
+        var regional = _.find( regionales, function(o) { return o.Id == item.RegionalId });
+        if( !regional) return;
+        var municipio = _.find( regional.Municipios, function(o) { return o.Id == item.MunicipioId });
+        return regional.Codigo + " " + regional.Nombre + " - " +  municipio.Codigo+ " " +municipio.Nombre;
+      }
+      
+    });
+  </script>
+</dom-module>

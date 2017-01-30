@@ -1,0 +1,99 @@
+<script src="../../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="encuesta-encurso">
+
+  <template></template>
+
+  <script>
+
+    Polymer({
+      is: 'encuesta-encurso',
+
+      hostAttributes: {
+        hidden: true
+      },
+
+      ready:function(){
+        console.log("encuesta-encurso");
+        this.item = this.__getFromLocalStorage();
+      },
+
+      properties: {
+        item :{
+            type:Object,
+            notify:true
+        },
+
+        isEmpty:{
+            type:Boolean,
+            computed:'__isEmpty(item)',
+            notify:true
+        }
+      },
+
+      __getFromLocalStorage:function(){
+          return JSON.parse( localStorage["encuestaEnCurso"] || 'null');
+      },
+
+      __saveToLocalStorage:function(item){
+          localStorage['encuestaEnCurso']= JSON.stringify(item);
+      },
+
+      __resetLocalStorage:function(){
+        localStorage.removeItem("encuestaEnCurso");
+      },
+
+      reset:function(){
+          this.__resetLocalStorage();
+          this.set("item", null);
+      },
+
+      load:function(item){           
+        this.__saveToLocalStorage(item);
+        this.set("item", {});
+        this.set("item", this.__getFromLocalStorage()); 
+          
+      },
+      
+      markAsUploading:function(uploading){
+          this.item.uploading=uploading;
+          var t=this.item;
+          this.set("item", {});
+          this.set("item", t); 
+      },
+
+      __isEmpty:function(item){
+          return !item ||  JSON.stringify(item)=='{}';
+      }
+
+/* 
+
+Results":[
+    {
+    "EventoCalendario":
+      {"Id":412,
+       "Title":"Mano de obra viviendas La Mono para casa pintada",
+       "Realizacion":"Realizada",
+       "ProyectoId":14,
+       "EncargadoId":7,
+       "RegionalId":4,
+       "Fecha":"\/Date(1480078800000-0000)\/"
+      },
+    "Id":1,
+    "GamId":1,
+    "PlantillaEncuestaId":0,
+    "EventoCalendarioId":412,
+    "FechaRealizacion":"\/Date(1484974800000-0000)\/",
+    "NumeroEncuentro":3,
+    "CreadoPorId":28,
+    "FechaCreacion":"\/Date(1484601756000-0000)\/",
+    "EncargadoId":28
+    },
+
+*/
+            
+    });
+  </script>
+</dom-module>
+

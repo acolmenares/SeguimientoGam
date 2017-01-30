@@ -1,0 +1,158 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../my-icons.html">
+
+<dom-module id="participantes-encuesta">
+
+  <template>
+
+    <style include="shared-styles">
+     
+      :host{
+        display: block;
+        max-width: 380px;
+        /*background-color:var(--paper-grey-200) ;*/
+      }
+
+      .persona{
+          position: relative;
+          background:var(--paper-grey-800);
+          color:var(--paper-grey-50);
+          
+          /*width: 100%;*/
+      }
+
+     .nombre-completo{
+         
+         margin: 2px auto 2px 2px;
+         padding: 2px 2px;
+      }
+      
+      paper-ripple{
+          color:var(--paper-grey-50);
+      }
+
+      .save-remote{
+          padding: 2px  6px;
+      }
+
+      .led {
+        display: inline-block;
+        width: 16px;
+        height:16px;
+        text-align: center;
+        border-radius: 50%;
+        line-height: 32px;
+      }
+
+      .led-green{
+          background: var(--paper-green-500);
+      }
+
+      .led-grey{
+          background:var(--paper-grey-50);
+      }
+      
+      paper-input{
+          padding :5px 15px;
+      }
+     
+   
+    </style>
+    
+        <paper-input value="{{filtro}}" label="Nombre o Apellido para buscar"></paper-input>
+           
+               <template is="dom-repeat" items="[[participantes]]" filter="__filtrar" id="lista">
+                   <div class="card persona horizontal">
+                       <div class="nombre-completo" on-tap="__update" >[[item.MiembroGam.NombreCompleto]]</div>
+                       <div class$="[[__calcularClaseLed(item)]]"></div>
+                       <paper-icon-button 
+                         class$="[[__calcularClaseUploadBtn(item)]]"
+                         icon="my-icons:cloud-upload" 
+                         on-tap="__upload"
+                         disabled$="[[__calculateDisabledState(logged,online, item)]]"></paper-icon-button>
+                       <paper-ripple></paper-ripple>
+                   </div>
+               </template>           
+    
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'participantes-encuesta',
+
+      ready:function(){
+        console.log("participantes-encuestas ready");
+      },
+
+      properties: {
+
+         participantes:{
+           type:Array,
+           value:function(){return []}
+         },
+
+         filtro:{
+             type:String,
+             value:null,
+             observer:"__filtroChanged"
+         },
+
+         logged:{
+             type:Boolean
+         },
+
+         online:{
+             type:Boolean
+         }
+
+
+      },
+
+      __filtroChanged:function(filtro){
+              this.$.lista.render();
+      },
+
+      __filtrar:function(item){
+          
+          if(!this.filtro || this.filtro.length<4) return true;
+
+          if(!item || !item.MiembroGam  || !item.MiembroGam.NombreCompleto) return false;
+
+          return item.MiembroGam.NombreCompleto.toUpperCase().contains(this.filtro.toUpperCase());
+
+      },
+
+      __update:function(evt, src){
+        
+        this.fire("update", evt.model);
+      },
+
+      __upload:function(evt, src){
+        
+        this.fire("upload", evt.model);
+      },
+
+      __calcularClaseLed:function(item){
+          if(! item || ! item.Respuestas) return "led";
+
+          return  Number.parseInt( item.Respuestas[0].Valor)>=0 ? ("led " + (item.modified?"led-grey":"led-green") ): "led";
+      },
+
+      __calcularClaseUploadBtn:function(item){
+          return (item && item.modified)? "": "no-visible";
+      },
+
+      __calculateDisabledState:function(logged,online, item){
+          return !logged || !online || !item || item.uploading;
+      }
+            
+    });
+  </script>
+</dom-module>

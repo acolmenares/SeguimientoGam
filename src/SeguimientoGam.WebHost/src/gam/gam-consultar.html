@@ -1,0 +1,56 @@
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../tablas/tablas-soporte.html">
+
+<dom-module id="gam-consultar">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 0px;
+       /* @apply --layout-vertical; */
+      }
+    </style>
+        
+     <div> Vamos a cosultar .....</div>
+     <paper-button on-tap="__cancelarHandler">Cancelar</paper-button>
+     <paper-button on-tap="__aceptarHandler">Aceptar</paper-button>
+   
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'gam-consultar',
+      
+      ready:function(){
+        
+      },
+
+      properties :{
+          
+      },
+      
+      __cancelarHandler:function(){
+        console.log("cancelar-consultar");
+        this.fire('cancelar');
+
+      },
+
+      __aceptarHandler:function(){
+        console.log("aceptar-consultar");
+        this.fire('aceptar');
+
+      },
+ 
+  
+    });
+  </script>
+</dom-module>

@@ -1,0 +1,199 @@
+<script src="../../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href= "../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../services/query-service.html">
+<link rel="import" href="../tablas/tablas-soporte.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="encuesta-gam-crear">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 0px;
+        max-width: 400px;
+        margin: auto;
+      }
+    </style>
+
+    <query-service model="encuestagam/eventocalendario" id="service"></query-service>
+    <app-localstorage-document key="colaboradores" data="{{__colaboradores}}"></app-localstorage-document>
+        
+    <form is="iron-form" method="get" action="/" id="form" class="card">
+      <div class="card-body">
+        
+         <paper-input name="NumeroEncuentro" label="Numero Encuentro" type="number" min="1" max="12" 
+           required auto-validate id="numeroEncuentro">
+         </paper-input>
+
+         <vaadin-combo-box name="EncargadoId" 
+           label="Encargado"
+           items="[[__getColaboradoresRegional(__colaboradores, regionalId)]]"
+           item-label-path="Nombres"
+           item-value-path="Id"
+           required auto-validate
+           value = "{{encargadoId}}"
+           id="encargadoId">
+        </vaadin-combo-box> 
+         
+        <vaadin-date-picker name="FechaRealizacion" 
+           label="Fecha Realizacion" 
+           value={{fechaRealizacion}}
+           id="fechaRealizacion">
+        </vaadin-date-picker>      
+
+        <paper-checkbox checked active="{{programada}}">Solo con Estado "Programada"</paper-checkbox>
+
+        <vaadin-combo-box name="EventoCalendarioId" 
+           label="Evento Calendario"
+           items="[[__eventos]]"
+           loading="[[loading]]"
+           disabled="[[loading]]"
+           id="eventoCalendarioId">
+        </vaadin-combo-box>             
+
+      </div>
+
+      <div class="card-footer center-horizontal">
+        <paper-icon-button icon="my-icons:cancel" class="giant cancel" on-tap="__cancelar"></paper-icon-button>
+        <paper-icon-button icon="my-icons:done" class="giant done" on-tap="__aceptar"  id="submitButton">
+        </paper-icon-button>
+      </div>
+      
+    </form>
+    <div style="height: 50px;"></div>
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'encuesta-gam-crear',
+      properties:{
+        __colaboradores:{
+          type:Array,
+          value:function(){return []}
+        }
+      },
+
+
+      ready:function(){
+        window.aicl.localizeCalendar(this.$.fechaRealizacion);
+      },
+
+      observers:[
+        '__recalcularEventos(fechaRealizacion,encargadoId,regionalId,programada)'
+      ],
+
+      __recalcularEventos:function(fechaRealizacion, encargadoId,regionalId, programada){
+        console.log("__recalcular programada", programada)
+
+        this.__eventos=[];
+
+        if(  !encargadoId || !regionalId ){
+          return;
+        }
+
+        var queryParmas={
+          Fecha:fechaRealizacion, 
+          RegionalId: regionalId, 
+          EncargadoId:encargadoId, 
+          Realizacion:'Programada' 
+        };
+        
+        if( !fechaRealizacion  )  delete queryParmas.Fecha;
+        if( !programada  )  delete queryParmas.Realizacion;
+
+        console.log("queryParams: ", queryParmas);
+
+        this.$.service.params= queryParmas;
+        this.loading=true;
+        var self=this;
+        this.$.service.execute(
+          function(response){
+            var results= [];
+            _.forEach( response.Results , function(o){
+              o.label=self.__formatDate( o.Fecha)+' '+  o.Title;
+              o.value=o.Id;
+              results.push(o);
+            });
+            self.__eventos= results;
+          },
+          function(error){
+            console.log("error", error);
+
+          },
+          function(){
+            self.loading=false;
+          }
+
+        );
+
+      },
+
+      __aceptar:function(evt, src){
+               
+        if( this.$.form.validate() ) {
+          var data = this.$.form.serialize();
+          
+          if(!data.FechaRealizacion && this.$.eventoCalendarioId.value){
+            var eventoId = this.$.eventoCalendarioId.value;
+            console.log("encuesta-gam-crear __aceptar ", this.__eventos, eventoId );
+            var evento = _.find(this.__eventos, function(o) { return  o.Id==eventoId } );
+            data.FechaRealizacion= evento.Fecha;
+          }
+          console.log("encuesta-gam-crear __aceptar data: ", data );
+
+          this.fire('aceptar', data);
+        }
+
+      },
+
+      __cancelar:function(evt, src){
+                
+        this.fire('cancelar');
+
+      },
+
+      reset:function(){
+
+        this.$.numeroEncuentro.required=false;
+        //this.$.fechaRealizacion.required=false;
+        this.$.numeroEncuentro.value="";
+        this.$.fechaRealizacion.value="";
+        this.$.eventoCalendarioId.value="";
+        this.$.numeroEncuentro.required=true;
+        //this.$.fechaRealizacion.required=true;
+      
+      },
+
+      __getColaboradoresRegional:function(colaboradores,regionalId){
+        var filtrados=[]
+        if (regionalId){
+           filtrados= _.filter(colaboradores, function(o) { return o.RegionalId == regionalId; });
+        }
+        return filtrados;
+      },
+
+      setGam:function(data){
+                      
+        this.$.encargadoId.value= data.EncargadoId;
+        this.regionalId = data.RegionalId;
+        
+      },
+            
+      __formatDate:function(date){
+        return window.aicl.formatDate(date) ;
+      }
+
+
+    });
+  </script>
+</dom-module>

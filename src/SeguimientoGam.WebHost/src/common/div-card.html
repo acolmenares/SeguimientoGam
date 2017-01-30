@@ -1,0 +1,45 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+
+<dom-module id="div-card">
+  <template>
+    <style>
+      
+      :host {
+          display: block;
+          margin: 0px;
+          padding: 0px;
+          color: var(--paper-grey-800);
+          border-radius: 0px;
+          background-color: #fff;
+          overflow-y: auto;
+          max-height: 100vh;
+      }
+      .empty-div{
+          height:30px;
+      }
+
+    </style>
+
+    <slot></slot>
+    <div class="empty-div" >
+    </div> 
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'div-card',
+    });
+  </script>
+</dom-module>

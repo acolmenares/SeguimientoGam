@@ -1,0 +1,150 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<link rel "import" href="../shared-styles.html">
+<link rel="import" href="../my-icons.html">
+
+<dom-module id="sin-informacion">
+
+  <template>
+     <style  include="shared-styles">
+      
+      :host {
+        display: block;
+        padding: 0px;
+        margin: 0 auto;
+        max-width: 400px;
+        
+      }
+
+      .continuar{
+          background: var(--paper-green-500);
+          color: white !important;
+          width: 100%;
+      }
+
+      .finalizar{
+          background:  var(--paper-blue-500);
+          color: white !important;
+          width: 100%;
+      }
+
+      .sininfo{
+          background: var(--paper-deep-orange-50);
+      }
+
+      .ficha-footer{
+          padding: 20px;
+      }
+
+      iron-icon{
+          margin-left: auto;
+      }
+
+      .info{
+        border: 1px solid;
+        padding: 8px;
+        border-radius: 6px;
+      }
+      .info-ficha{
+          margin-top: 10px;
+      }
+
+      .linea{
+          padding: 8px;
+      }
+      .right{
+          margin-left: auto;
+      }
+
+      paper-button[disabled] {
+        background: var(--paper-grey-300);
+      }
+      
+    </style>
+    <div class="card sininfo">
+
+      <div class="card-body vertical">
+          <div class="info">
+           <div class="horizontal linea">
+             <div>En Linea :</div>
+             <div class="circle right">[[__calcularEnLinea(online)]]</div>
+           </div>  
+           <div class="horizontal linea">
+             <div>Sesion Iniciada :</div>
+             <div class="circle right">[[__calcularSesionIniciada(logged)]]</div>
+           </div>
+           <div class="horizontal linea">
+             <div>Encuestas Disponibles :</div>
+             <div class="circle right">[[numeroEncuestas]]</div>
+           </div>
+          </div>  
+           <!-- <template restamp is="dom-if" if="{{!item}}"> !-->
+           <div class="info info-ficha"> 
+           <div class="horizontal">
+             <div class="circle">[[item.NumeroEncuentro]]</div>
+             <div class$="[[__classRealizacion(item)]]" >[[item.EventoCalendario.Realizacion]]</div>
+           </div>  
+           <p>[[__fechaConTitulo(item)]]</p>
+           <div class="horizontal">
+             <div>Participantes Encuesta :</div>
+             <div class="circle right">[[numeroParticipantes]]</div>
+           </div>
+           </div>
+           <!-- </template> !-->
+      </div>
+      <div class="card-footer center-vertical ficha-footer">
+          <paper-button class="continuar" on-tap="__continuar">Recargar<iron-icon icon="my-icons:arrow-forward"></iron-icon></paper-button>
+          <paper-button class="finalizar" on-tap="__finalizar" disabled$="[[__calculateDisabledLogout(online)]]" >Cerrar sesión<iron-icon icon="my-icons:done"></iron-icon></paper-button>
+      </div> 
+    </div>
+  </template>
+  <script>
+    
+    Polymer({
+      
+      is: 'sin-informacion',
+      
+      properties: {
+         
+      },
+
+      __calcularEnLinea:function(online){
+          return online?"Si":"No"
+      },
+
+      __calcularSesionIniciada:function(logged){
+          return logged?"Si":"No"
+      },
+
+      __calculateDisabledLogout:function(online){
+          return !online;
+      },
+
+      __fechaConTitulo:function(item){
+
+        return  item && item.EventoCalendario?
+        ( window.aicl.formatDate( item.EventoCalendario.Id? item.EventoCalendario.Fecha: item.FechaRealizacion)+' - '+
+        (item.EventoCalendario.Title ||'')): "";
+      },
+
+      __classRealizacion:function(item){
+        return  item && item.EventoCalendario? "realizacion " + item.EventoCalendario.Realizacion:"" ;
+      },
+
+      __continuar:function(evt,src){
+          this.fire("continuar")
+
+      },
+
+      __finalizar:function(evt, src){
+          this.fire("finalizar")
+      }
+
+
+    });
+  </script>
+
+</dom-module>

@@ -1,0 +1,55 @@
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="ajax-service.html">
+
+<dom-module id="create-service">
+  <template>
+    
+    <ajax-service id='query'
+      method='POST'
+      debounce-duration=500
+      body=[[body]]
+      handle-as="json"
+      last-error="{{lastError}}"
+      last-response="{{lastResponse}}"
+      params="[[params]]"
+      model="[[model]]"
+      action="[[action]]">
+    </ajax-service>
+        
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'create-service',
+     
+      hostAttributes: {
+        hidden: true
+      },
+
+      properties: {
+        
+        action: {
+          type:String,
+          value: 'crear.json',
+        },
+        
+        lastResponse: { type:Object, value:function(){ return {}; }, notify: true },
+        
+        lastError: { type:Object, value:function(){ return {}; }, notify: true },     
+
+      },
+
+      execute:function(successFn, failureFun, alwaysFn){        
+        return  this.$.query.execute(successFn, failureFun, alwaysFn);
+      }
+
+    });
+  </script>
+</dom-module>

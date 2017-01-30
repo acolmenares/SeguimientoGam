@@ -1,0 +1,212 @@
+<script src="../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+<!-- <link rel="import" href="miembro-gam/miembro-gam-service.html"> !-->
+<link rel="import" href="miembro-gam/miembro-gam-list.html">
+<link rel="import" href="miembro-gam/miembro-gam-consultar.html">
+<link rel="import" href="miembro-gam/miembro-gam-crear.html">
+<link rel="import" href="miembro-gam/miembro-gam-actualizar.html">
+<link rel="import" href="miembro-gam/miembro-gam-borrar.html">
+
+<link rel="import" href="services/remote-service.html">
+<link rel="import" href="elements/gam-info/gam-info.html">
+<link rel="import" href="elements/busy-spinner/busy-spinner.html">
+<link rel="import" href="elements/error-message/error-message.html">
+<link rel="import" href="common/div-card.html">
+<link rel="import" href="common/div-toolbar.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="miembro-gam-index">
+  <template>
+    <style >
+      :host {
+        display: block;
+        margin: 0px;
+        padding: 0px;
+        @apply --layout-vertical;
+      }
+
+      a{
+        text-decoration: none;
+      }
+
+      
+    </style>
+
+    <!-- <miembro-gam-service id="service" query-last-response="{{miembroResponse}}" ></miembro-gam-service> !-->
+    <remote-service id="service" 
+      query-model="miembrogam" query-last-response="{{miembroResponse}}"
+      create-model="miembrogam"
+      update-model="miembrogam">
+    </remote-service>
+      
+    <div-toolbar opened>
+      <iron-selector selected="{{action}}" attr-for-selected="name" role="navigation" >
+        <a name="consultar" href="#/miembro-gam/consultar">
+          <paper-icon-button icon="my-icons:search"></paper-icon-button>
+        </a>
+        <a name="crear" href="#/miembro-gam/crear">
+          <paper-icon-button icon="my-icons:add-circle"></paper-icon-button>
+        </a>             
+      </iron-selector>
+    </div-toolbar>
+    
+    <div-card>
+        <gam-info gam="[[gam]]"></gam-info>
+            
+        <busy-spinner id="spinner"></busy-spinner>         
+      
+        <iron-pages
+            selected="[[action]]"
+            attr-for-selected="name"        
+            fallback-selection="list"
+            role="main">        
+            <miembro-gam-list name="list" miembros="{{miembros}}" on-update="__update" id="list" ></miembro-gam-list>
+            <miembro-gam-consultar name="consultar" on-aceptar="__aceptarConsultar" on-cancelar="__cancelar" ></miembro-gam-consultar>
+            <miembro-gam-crear name="crear" on-aceptar="__aceptarCrear" on-cancelar="__cancelar" id="miembroGamCrear" ></miembro-gam-crear>
+            <miembro-gam-actualizar name="actualizar" on-aceptar="__aceptarActualizar" on-cancelar="__cancelar" id="miembroGamActualizar"></miembro-gam-actualizar>
+            <miembro-gam-borrar name="borrar"></miembro-gam-borrar>
+        </iron-pages>   
+
+        <paper-toast id="toast"></paper-toast>
+        <error-message id="errorMessage"></error-message>
+      
+    </div-card>
+  </template>
+
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'miembro-gam-index',
+      
+      ready:function(){
+        
+      },
+
+      properties: {
+              
+        active:{
+          type:Boolean,
+          value:false
+        },
+
+        action: {
+          type: String,
+          reflectToAttribute: true
+        },
+
+        gam:{
+          type:Object,
+          value: function(){return null},
+          observer:"__gamChanged"
+        }
+
+      },
+
+      __gamChanged:function(gam){
+        if(gam  && gam.Miembros){
+        console.log("__gamChanged:", gam.Miembros, gam.Miembros.length)
+        }
+        this.miembros = (gam && gam.Miembros)? gam.Miembros: [];
+      },
+
+      observers:[
+        '__stateChanged(active, action)'
+      ],
+
+      __stateChanged:function(active, action){
+        console.log("__stateChanged active, action, this.action:",active, action, this.action)
+        if(active){
+          //this.$.list.style.display= (action)?"none":"";
+          //this.$.list.refresh();
+        }
+      },
+
+      
+      __aceptarConsultar:function(evt, src){
+        window.history.go(-1);
+
+      },
+
+      __update:function(evt, src){
+                
+        this.$.miembroGamActualizar.load( evt.detail.item)
+        location.href="#/miembro-gam/actualizar" 
+
+      },
+
+      
+      __aceptarActualizar:function(evt, src){
+
+        var data = evt.detail;
+        var self=this;
+        this.__save(data, (response)=>{
+          var item = response.Data;
+          var index = _.findIndex(self.miembros, function(o) { return o.Id == data.Id; });
+          self.set("miembros." + index, item);
+        });
+
+      },
+
+      __aceptarCrear:function(evt, src)
+      {
+        console.log("__aceptarCrea evt.detail", evt.detail)
+        var data = evt.detail;
+        data.GamId= this.gam.Id;
+        var self=this;
+
+        this.__save(data, (response)=>{
+
+          self.$.miembroGamCrear.reset();
+          self.push("miembros", response.Data)
+
+        });
+        
+      },
+
+      __save:function(data, successFn){
+        var self=this; 
+        this.$.spinner.open();
+        this.$.service.save(data,
+        function(response)
+        {
+          console.log("Exito Debe hacer algo con el response", response);
+          self.$.toast.fitInto = data.Id? self.$.miembroGamActualizar: self.$.miembroGamCrear;
+          self.$.toast.text="Registro "+ (data.Id?"Actualizado:":"Creado:") + response.Data.Id + " " + response.Data.Nombres;
+          self.$.toast.open();
+          if(successFn){
+            successFn(response);
+          }
+          
+        },
+        function(err){
+          console.log("Error talvez debo hacer algo con el error", err);
+          self.$.errorMessage.response= err;
+          self.$.errorMessage.open();
+
+        },
+        function(){
+          console.log("Siempre... ");
+          self.$.spinner.close();
+        });
+      },
+      
+      __cancelar:function(evt, src)
+      {
+        window.history.go(-1);
+      }
+
+
+    });
+  </script>
+</dom-module>

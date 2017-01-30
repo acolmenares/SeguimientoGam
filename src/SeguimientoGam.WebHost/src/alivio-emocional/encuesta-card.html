@@ -1,0 +1,98 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<link rel "import" href="../shared-styles.html">
+<link rel="import" href="../my-icons.html">
+
+<dom-module id="encuesta-card">
+
+  <template>
+     <style  include="shared-styles">
+      
+      :host {
+        display: block;
+        padding: 0;
+        margin: 0 auto;
+        max-width: 400px;
+        
+      }
+
+      .continuar{
+          background: var(--paper-green-500);
+          color: white !important;
+          width: 100%;
+      }
+
+      .finalizar{
+          background:  var(--paper-blue-500);
+          color: white !important;
+          width: 100%;
+      }
+
+      .ficha{
+          background: var(--paper-grey-500);
+      }
+
+      .ficha-footer{
+          padding: 20px;
+      }
+
+      iron-icon{
+          margin-left: auto;
+      }
+      
+    </style>
+    <div class="card ficha" >
+
+      <div class="card-body">
+           <div class="horizontal">
+             <div class="circle" >[[item.NumeroEncuentro]]</div>
+             <div class$="[[__classRealizacion(item)]]" >[[item.EventoCalendario.Realizacion]]</div>
+           </div>  
+           <p>[[__fechaConTitulo(item)]]</p>
+        </div>
+        <div class="card-footer center-vertical ficha-footer">
+          <paper-button class="continuar" on-tap="__continuar">Continuar con la encuesta<iron-icon icon="my-icons:arrow-forward"></iron-icon></paper-button>
+          <paper-button class="finalizar" on-tap="__finalizar">Finalizar Encuesta<iron-icon icon="my-icons:done"></iron-icon></paper-button>
+        </div> 
+    </div>
+  </template>
+  <script>
+    
+    Polymer({
+      
+      is: 'encuesta-card',
+      
+      properties: {
+         item:{
+             type:Object
+         }
+      },
+
+       __fechaConTitulo:function(item){
+
+        return  item && item.EventoCalendario?
+        ( window.aicl.formatDate( item.EventoCalendario.Id? item.EventoCalendario.Fecha: item.FechaRealizacion)+' - '+
+        (item.EventoCalendario.Title ||'')): "";
+      },
+
+      __classRealizacion:function(item){
+        return  item && item.EventoCalendario? "realizacion " + item.EventoCalendario.Realizacion:"" ;
+      },
+
+      __continuar:function(evt,src){
+          this.fire("continuar")
+
+      },
+
+      __finalizar:function(evt, src){
+          this.fire("finalizar")
+      }
+
+
+    });
+  </script>
+
+</dom-module>

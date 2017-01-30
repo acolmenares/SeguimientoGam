@@ -1,0 +1,44 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
+<link rel="import" href="../../../bower_components/paper-dialog-behavior/paper-dialog-shared-styles.html">
+<link rel="import" href="../../shared-styles.html">
+<dom-module id="confirm-message">
+  <template>
+    <style include="paper-dialog-shared-style shared-styles" >
+        :host {
+            min-width: 380px;
+        }
+        .message{
+            padding-left: 15px;
+        }
+    </style>
+        
+    <div class="card card-confirm">
+      <slot>
+        <div class="card-body message">
+            <p>[[mensaje]]</p>
+        </div>
+      
+      <div class="card-footer center-horizontal">
+        <paper-icon-button icon="my-icons:cancel" class="giant cancel" dialog-dismiss></paper-icon-button>
+        <paper-icon-button icon="my-icons:done"   class="giant done" dialog-confirm autofocus></paper-icon-button>
+      </div>
+      </slot>
+    </div>
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'confirm-message',
+      behaviors: [Polymer.PaperDialogBehavior],
+      properties: {
+        mensaje:{type:String, value:''}
+      }
+    });
+  </script>
+</dom-module>

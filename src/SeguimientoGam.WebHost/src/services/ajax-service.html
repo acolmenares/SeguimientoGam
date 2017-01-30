@@ -1,0 +1,177 @@
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="ajax-service">
+  <template>
+    
+    <iron-ajax id="query"
+      headers='{"Content-Type":"application/x-www-form-urlencoded"}'
+      method="[[method]]"
+      debounce-duration="[[debounceDuration]]"
+      body="[[body]]"
+      url="{{__url}}"
+      handle-as="json"
+      last-error="{{lastError}}"
+      last-response="{{lastResponse}}"
+      params="[[params]]">
+    </iron-ajax>        
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'ajax-service',
+     
+      hostAttributes: {
+        hidden: true
+      },
+
+      properties: {
+
+        method:{
+            type:String,
+            value:''
+        },
+
+        debounceDuration:{
+            type:Number,
+            value:500,
+        },
+
+        auto:{
+            type:Boolean,
+            value:false,
+            observer:'__autoChanged'
+        },
+
+        api: {
+          type:String,
+          value: 'gam-api',
+        },
+
+        model: {
+          type:String,
+          value: null,
+        },
+
+        action: {
+          type:String,
+          value: null,
+        },
+
+        params: {
+          type: Object,
+          value: function() {
+            return null;
+            }
+        },
+
+        body: {
+          type: Object,
+          value: function() {
+            return null;
+            }
+        },
+                
+        lastResponse: { type:Object, value:function(){ return {}; }, notify: true },
+        
+        lastError: { type:Object, value:function(){ return {}; }, notify: true },     
+
+        __url:{
+            computed: '__computeUrl(api,model,action)'
+        },
+
+        ajax:{
+            computed: '__getAjax()'
+        }
+        
+      },
+
+      __autoChanged:function(auto){
+        this.$.query.auto=auto;
+      },
+
+      __getAjax:function(){
+          return this.$.query;
+      },
+
+      __computeUrl:function(api, model, action){
+        var paths;
+        if(location.hostname){
+          paths= [api,model,action]
+        }
+        else{
+          var hostname="https://co.blumont.org/alivio";
+          paths= [hostname, api,model,action]
+        }
+        return  paths.join('/');
+      },
+
+      __xhrToResponse:function(ironRequest){
+
+		var xhr= ironRequest.xhr;
+		
+        var rs = {
+			Status:xhr.status,
+			StatusText:xhr.statusText||"Error !",
+			ResponseType:xhr.responseType || xhr._responseType,
+			ResponseUrl: xhr.responseURL || ironRequest.url,
+			Succeeded: ironRequest.succeeded
+		};
+
+		var responseTmp= xhr.response;
+		if( xhr._responseType==='json' && typeof(xhr.response)==='string'){
+			try{
+				responseTmp=JSON.parse(xhr.response);
+			}
+			catch(ex){
+			}
+		}
+
+		rs.Response = (responseTmp && !responseTmp.ResponseStatus)? responseTmp:{};
+
+		rs.ResponseStatus=  (responseTmp && responseTmp.ResponseStatus)? responseTmp.ResponseStatus:{};
+		var apn = Object.getOwnPropertyNames(rs.ResponseStatus);
+		for(var pn in apn ){
+			if(apn[pn]==="Message"){
+				var msg = rs.ResponseStatus.Message ||'';
+				rs.ResponseStatus.Message= msg.substring(0,msg.indexOf(': '));
+			}
+			if(apn[pn]==="StackTrace"){
+				var st = rs.ResponseStatus.StackTrace ||'';
+				rs.ResponseStatus.StackTrace= st.substring(0,st.indexOf(':\n'));
+			}
+        }
+	    return rs;
+	  },
+
+
+      execute:function(successFn, failureFun, alwaysFn){
+        
+        var req=  this.$.query.generateRequest();
+        var self=this;
+
+        req.completes.then( 
+          function(data){
+            if(successFn) successFn(data.response);
+          },
+          function(err)
+          {
+            var fullerror= self.__xhrToResponse(req);
+            if( failureFun) failureFun(fullerror);
+          })
+          .then(function(){
+              if(alwaysFn) alwaysFn();
+          });     
+
+        return req;
+      }
+
+    });
+  </script>
+</dom-module>

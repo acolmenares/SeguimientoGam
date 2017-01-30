@@ -1,0 +1,95 @@
+<script src="../../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../tablas/tablas-soporte.html">
+<link rel "import" href="../shared-styles.html">
+<link rel="import" href="../my-icons.html">
+
+
+
+<dom-module id="encuesta-gam-list">
+  <template>
+    <style  include="shared-styles">
+      :host {
+        display: block;
+        padding: 0px; 
+      }
+      
+    </style>
+
+    <app-localstorage-document key="colaboradores" data="{{__colaboradores}}"></app-localstorage-document>
+    <app-localstorage-document key="regionales" data="{{__regionales}}"></app-localstorage-document>
+       
+    <iron-list items="[[encuestas]]" as="item" id="list"> 
+    <template> 
+      <div>
+      <div tabindex$="[[tabIndex]]" class="card card-in-list">
+        <div class="card-body">
+           <div class="horizontal">
+             <div class="circle" >[[item.NumeroEncuentro]]</div>
+             <div class$="[[__classRealizacion(item)]]" >[[item.EventoCalendario.Realizacion]]</div>
+           </div>  
+           <p>[[__fechaConTitulo(item)]]</p>
+           <p>[[__encargado(item,__colaboradores)]]</p>
+        </div>
+        <div class="card-footer">
+          <paper-icon-button icon="my-icons:update" on-tap="__update"></paper-icon-button>
+          <paper-icon-button icon="my-icons:delete" on-tap="__delete"></paper-icon-button>
+        </div>
+      </div>
+      </div>
+    </template>
+    </iron-list>
+    
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'encuesta-gam-list',
+   
+      __update:function(evt, src){
+        console.log("__udpate : ", evt.model.item, evt.model.index);
+        this.fire("update", evt.model);
+      },
+
+      __delete:function(evt, src){
+        console.log("__delete",  evt.model.item, evt.model.index);
+        this.fire("delete", evt.model);
+      },
+
+      __fechaConTitulo:function(item){
+
+        return   window.aicl.formatDate( item.EventoCalendario.Id? item.EventoCalendario.Fecha: item.FechaRealizacion)+' - '+
+          (item.EventoCalendario.Title ||'');
+      },
+
+      __classRealizacion:function(item){
+        return "realizacion " + item.EventoCalendario.Realizacion ;
+      },
+
+
+      __encargado:function(item,colaboradores){
+
+        if(!item) return;
+
+        var encargadoEncuesta = _.find( colaboradores, function(o) { return o.Id == item.EncargadoId });
+        if(!encargadoEncuesta) return '';
+        
+        var encargadoTexto = encargadoEncuesta.Nombres + " " + encargadoEncuesta.Apellidos;
+
+        if( item.EventoCalendario.EncargadoId && item.EncargadoId != item.EventoCalendario.EncargadoId ){
+          var encargadoEvento = _.find( colaboradores, function(o) { return o.Id == item.EventoCalendario.EncargadoId });
+          encargadoTexto= encargadoEvento.Nombres + " " + encargadoEvento.Apellidos+ " => "  + encargadoTexto;
+        }
+      
+        return encargadoTexto;
+      }
+
+    });
+  </script>
+</dom-module>

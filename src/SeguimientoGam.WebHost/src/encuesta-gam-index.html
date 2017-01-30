@@ -1,0 +1,229 @@
+<script src="../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+<link rel="import" href="encuesta-gam/encuesta-gam-list.html">
+<link rel="import" href="encuesta-gam/encuesta-gam-consultar.html">
+<link rel="import" href="encuesta-gam/encuesta-gam-crear.html">
+<link rel="import" href="encuesta-gam/encuesta-gam-actualizar.html">
+<link rel="import" href="encuesta-gam/encuesta-gam-borrar.html">
+
+<link rel="import" href="services/remote-service.html">
+<link rel="import" href="elements/gam-info/gam-info.html">
+<link rel="import" href="elements/busy-spinner/busy-spinner.html">
+<link rel="import" href="elements/error-message/error-message.html">
+<link rel="import" href="common/div-card.html">
+<link rel="import" href="common/div-toolbar.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="encuesta-gam-index">
+  <template>
+    <style >
+      :host {
+        display: block;
+        margin: 0px;
+        padding: 0px;
+        @apply --layout-vertical;
+      }
+
+      a{
+        text-decoration: none;
+      }
+
+      
+    </style>
+
+    <remote-service id="service" 
+      query-model="encuestagam" query-last-response="{{encuestaResponse}}"
+      create-model="encuestagam"
+      update-model="encuestagam">
+    </remote-service>
+      
+    <div-toolbar opened>
+      <iron-selector selected="{{action}}" attr-for-selected="name" role="navigation" >
+        <a name="consultar" href="#/encuesta-gam/consultar">
+          <paper-icon-button icon="my-icons:search"></paper-icon-button>
+        </a>
+        <a name="crear" href="#/encuesta-gam/crear">
+          <paper-icon-button icon="my-icons:add-circle"></paper-icon-button>
+        </a>             
+      </iron-selector>
+    </div-toolbar>
+    
+    <div-card>
+        <gam-info gam="[[gam]]"></gam-info>
+            
+        <busy-spinner id="spinner"></busy-spinner>   
+            
+        <iron-pages
+            selected="[[action]]"
+            attr-for-selected="name"        
+            fallback-selection="list"
+            role="main">        
+            <encuesta-gam-list name="list" encuestas="{{encuestas}}" on-update="__update" id="list" ></encuesta-gam-list>
+            <encuesta-gam-consultar name="consultar" on-aceptar="__aceptarConsultar" on-cancelar="__cancelar" ></encuesta-gam-consultar>
+            <encuesta-gam-crear name="crear" on-aceptar="__aceptarCrear" on-cancelar="__cancelar" id="encuestaGamCrear" ></encuesta-gam-crear>
+            <encuesta-gam-actualizar name="actualizar" on-aceptar="__aceptarActualizar" on-cancelar="__cancelar" id="encuestaGamActualizar"></encuesta-gam-actualizar>
+            <encuesta-gam-borrar name="borrar"></encuesta-gam-borrar>
+        </iron-pages>   
+
+        <paper-toast id="toast"></paper-toast>
+        <error-message id="errorMessage"></error-message>
+      
+    </div-card>
+  </template>
+
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'encuesta-gam-index',
+      
+      ready:function(){
+        
+      },
+
+      properties: {
+              
+        active:{
+          type:Boolean,
+          value:false
+        },
+
+        action: {
+          type: String,
+          reflectToAttribute: true
+        },
+
+        gam:{
+          type:Object,
+          value: function(){return null},
+          observer:"__gamChanged"
+        }
+
+      },
+
+      __gamChanged:function(gam){
+        
+        this.encuestas=[];
+
+        if ( !gam ) return;
+
+        console.log("__gamChanged:", gam);
+        this.$.encuestaGamCrear.setGam(gam);
+        
+        this.$.service.queryParams={GamId: gam.Id};
+        var self=this;
+        this.$.spinner.open();
+
+        this.$.service.query(
+            function(response){
+                console.log("Encuestas recibidad", response.Results);
+                self.encuestas= response.Results;
+            },
+            function(err){
+                self.$.errorMessage.response= err;
+                self.$.errorMessage.open();
+            },
+            function(){
+                self.$.spinner.close();
+            }
+
+        )
+               
+      },
+
+      observers:[
+        '__stateChanged(active, action)'
+      ],
+
+      __stateChanged:function(active, action){
+        console.log("__stateChanged active, action, this.action:",active, action, this.action);
+      },
+
+      
+      __aceptarConsultar:function(evt, src){
+        window.history.go(-1);
+
+      },
+
+      __update:function(evt, src){
+                
+        this.$.encuestaGamActualizar.load( evt.detail.item, this.gam)
+        location.href="#/encuesta-gam/actualizar" 
+
+      },
+
+      
+      __aceptarActualizar:function(evt, src){
+
+        var data = evt.detail;
+        var self=this;
+        this.__save(data, (response)=>{
+          var item = response.Data;
+          var index = _.findIndex(self.encuestas, function(o) { return o.Id == data.Id; });
+          self.set("encuestas." + index, item);
+        });
+
+      },
+
+      __aceptarCrear:function(evt, src)
+      {
+        console.log("__aceptarCrea evt.detail", evt.detail)
+        var data = evt.detail;
+        data.GamId= this.gam.Id;
+        var self=this;
+
+        this.__save(data, (response)=>{
+
+          self.$.encuestaGamCrear.reset();
+          self.push("encuestas", response.Data)
+
+        });
+        
+      },
+
+      __save:function(data, successFn){
+        var self=this; 
+        this.$.spinner.open();
+        this.$.service.save(data,
+        function(response)
+        {
+          console.log("Exito Debe hacer algo con el response", response);
+          self.$.toast.fitInto = data.Id? self.$.encuestaGamActualizar: self.$.encuestaGamCrear;
+          self.$.toast.text="Registro "+ (data.Id?"Actualizado:":"Creado:") + response.Data.Id ;
+          self.$.toast.open();
+          if(successFn){
+            successFn(response);
+          }
+          
+        },
+        function(err){
+          console.log("Error talvez debo hacer algo con el error", err);
+          self.$.errorMessage.response= err;
+          self.$.errorMessage.open();
+
+        },
+        function(){
+          console.log("Siempre... ");
+          self.$.spinner.close();
+        });
+      },
+      
+      __cancelar:function(evt, src)
+      {
+        window.history.go(-1);
+      }
+
+
+    });
+  </script>
+</dom-module>

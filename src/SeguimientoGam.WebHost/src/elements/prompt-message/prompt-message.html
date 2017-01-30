@@ -1,0 +1,68 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
+<link rel="import" href="../../../bower_components/paper-dialog-behavior/paper-dialog-shared-styles.html">
+<link rel="import" href="../../shared-styles.html">
+<dom-module id="prompt-message">
+  <template>
+    <style include="paper-dialog-shared-style shared-styles" >
+        :host {
+            min-width: 380px;
+        }
+        .message{
+            padding-left: 15px;
+        }
+    </style>
+        
+    <div class="card card-confirm">
+      <slot>
+        <div class="card-body message">
+            <p>[[mensaje]]</p>
+            <paper-input value="{{respuesta}}"></paper-input>
+        </div>
+      
+      <div class="buttons card-footer center-horizontal">
+        <paper-icon-button icon="my-icons:cancel" class="giant cancel" dialog-dismiss></paper-icon-button>
+        <paper-icon-button icon="my-icons:done"   class="giant done" dialog-confirm autofocus></paper-icon-button>
+      </div>
+      </slot>
+    </div>
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'prompt-message',
+      behaviors: [Polymer.PaperDialogBehavior],
+      properties: {
+        mensaje:{type:String, value:''},
+        respuesta:{type:String }
+      },
+
+      listeners: { 
+        'iron-overlay-opened': '__onOpened',
+        'iron-overlay-closed': '__onClosed' 
+      },
+
+      onClose:function(callback){
+        this.__onCloseCallback= callback;
+
+      },
+
+      __onOpened:function(){
+        this.respuesta="";
+      },
+
+      __onClosed:function(){
+        if(this.__onCloseCallback){
+          this.__onCloseCallback(this);
+        }
+      }
+
+    });
+  </script>
+</dom-module>

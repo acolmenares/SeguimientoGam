@@ -1,0 +1,141 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<dom-module id="termometro-elm">
+  <template>
+    <style>
+      :host {
+        display: block;
+        width: 95%;
+        max-width: 350px;
+        border-radius: 4px;
+        background-color:var(--paper-grey-200) ;
+        padding: 4px;
+        @apply --layout-vertical;
+      }
+
+      .figura{
+        width: 100%;
+        height: 75px;
+        padding: 0px;
+        
+      }
+      .ultima-figura{
+        height: 130px;
+      }
+
+      .contenedor-botones{
+           @apply --layout-horizontal;
+           @apply --layout-center-justified;
+      }
+
+      paper-icon-button.giant {
+          width: 60px;
+          height: 60px;
+      }
+
+      paper-icon-button.cancel {
+          padding: 10px 15px;
+          margin-right:auto
+      }
+
+      paper-icon-button.done {
+          color: var(--paper-blue-500);
+          padding: 10px;   
+      }
+      
+    </style>
+       
+         <paper-icon-button index="0" toggles on-tap="__onButtonTap" class="figura" src$="[[__calculateFigureSrc(selected,0,'me_siento_muy_mal')]]" ></paper-icon-button>
+         <paper-icon-button index="1" toggles on-tap="__onButtonTap" class="figura" src$="[[__calculateFigureSrc(selected,1,'me_siento_algo_mal')]]"></paper-icon-button>
+         <paper-icon-button index="2" toggles on-tap="__onButtonTap" class="figura" src$="[[__calculateFigureSrc(selected,2,'me_siento_ni_muy_mal')]]"></paper-icon-button>
+         <paper-icon-button index="3" toggles on-tap="__onButtonTap" class="figura" src$="[[__calculateFigureSrc(selected,3,'me_siento_algo_aliviado')]]"></paper-icon-button>
+         <paper-icon-button index="4" toggles on-tap="__onButtonTap" class="figura ultima-figura" src$="[[__calculateFigureSrc(selected,4,'me_siento_aliviado')]]"></paper-icon-button>
+       
+        <div class="contenedor-botones">
+            <paper-icon-button icon="my-icons:cancel" on-tap="__onCancelTap" class="giant cancel" ></paper-icon-button>
+            <paper-icon-button icon="my-icons:done" on-tap="__onDoneTap" class="giant done" ></paper-icon-button>
+        </div>   
+  </template>
+
+  <script>
+    Polymer({
+      is: 'termometro-elm',
+      
+      properties: {
+        
+        selected: {
+            type: Number,
+            value: -1
+        },
+        __options:{
+          type:Array,
+          value :[{Valor:1, Texto:"Me siento muy mal"},
+                  {Valor:2, Texto:"Me siento algo mal"},
+                  {Valor:3, Texto:"Ni muy may Ni aliviado/a"},
+                  {Valor:4, Texto:"Me siento algo aliviado/a"},
+                  {Valor:5, Texto:"Me siento aliviado/a"}]
+        },
+
+        __item:{
+          type:Object,
+          value :function(){return {};}
+        } 
+
+      },
+
+      __onDoneTap:function( evt, src){
+        
+        if( this.selected>=0  ){
+          this.__item = this.__options[this.selected];
+        }
+        else{
+          this.__item= {Valor:"", Texto:""};
+        }
+        this.fire('done', this.__item);
+        
+      },
+
+      __onCancelTap:function( evt, src){       
+        this.fire('canceled');
+      },
+            
+      __calculateFigureSrc:function (selected,index,figureName){
+                                
+        var partial = "images/"+figureName;
+        return ((selected==index )? (partial+"-selected") : partial)+".png";
+        
+      },
+
+      __onButtonTap:function(evt,src){
+
+        var btn =  evt.currentTarget;
+        var index = parseInt( btn.getAttribute("index") || "-1");            
+        evt.stopPropagation();
+        this.selected= (this.selected==-1  || this.selected!=index) ? index: -1;
+
+      },
+
+      reset:function(){
+        this.__item= {};
+        this.selected=-1;
+      },
+
+      selectOption:function(valor){
+         this.selected = Number.parseInt(valor || 0) -1;
+      }
+
+    });
+  </script>
+</dom-module>

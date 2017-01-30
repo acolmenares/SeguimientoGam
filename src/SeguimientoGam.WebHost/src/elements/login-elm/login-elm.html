@@ -1,0 +1,70 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../my-icons.html">
+
+<dom-module id="login-elm">
+
+  <style>
+    :host {
+      display: block;
+      margin: 0 auto;
+      width: 335px;
+    }
+        
+    .btn-aceptar{
+      margin: 5px 10px;
+      width: 250px;
+    }
+   
+    paper-card{
+      margin: 30px 0px 0px 0px;
+      padding: 12px;
+      background-color:var(--paper-grey-200) ;
+    }
+    
+  </style>
+
+  <template>
+        <paper-card heading="Inicio de Sesión" elevation=2 >
+          <div class="card-content">
+            <paper-input name="username" label="Usuario" required auto-validate id="username"  ></paper-input >
+            <paper-input name="password" label="Contraseña" required auto-validate type="password" minlength="6"  id="password"></paper-input>
+          </div>
+          <div class="card-actions">
+            <paper-icon-button icon="my-icons:send"  class="btn-aceptar" on-tap="validar">Iniciar
+            </paper-icon-button>
+          </div>
+        </paper-card>
+        
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'login-elm',
+      
+      properties: {
+         
+      },
+
+      validar:function(){
+        if (this.$.username.validate()  & this.$.password.validate()){
+         var data={
+            username: this.$.username.value,
+            password: this.$.password.value
+          };
+          this.$.password.required=false;
+          this.$.password.value="";
+          this.$.password.required=true;
+          this.fire('try-login', data);
+        }
+      },
+
+
+
+    });
+  </script>
+
+</dom-module>

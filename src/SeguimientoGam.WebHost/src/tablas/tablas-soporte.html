@@ -1,0 +1,150 @@
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../services/query-service.html">
+
+<dom-module id="tablas-soporte">
+  <template>
+    
+    <app-localstorage-document key="colaboradores" data="{{colaboradores}}" >
+    </app-localstorage-document>
+    <app-localstorage-document key="regionales" data="{{regionales}}" >
+    </app-localstorage-document>
+    <app-localstorage-document key="sesion" data="{{sesion}}" >
+    </app-localstorage-document>
+    <app-localstorage-document key="usuario" data="{{usuario}}" >
+    </app-localstorage-document>
+    <app-localstorage-document key="regionalesAutorizadas" data="{{regionalesAutorizadas}}" >
+    </app-localstorage-document>
+    <app-localstorage-document key="generos" data="{{generos}}" >
+    </app-localstorage-document>
+    <app-localstorage-document key="tiposDocumento" data="{{tiposDocumento}}" >
+    </app-localstorage-document>
+    <app-localstorage-document key="alivioEmocional" data="{{alivioEmocional}}" >
+    </app-localstorage-document>
+    
+  </template>
+
+  <script>
+    Polymer({
+      is: 'tablas-soporte',
+      
+      hostAttributes: {
+        hidden: true
+      },
+
+      properties: {
+        sesion:{
+          type:Object,
+          value: function() {return {}},
+          notify:true
+        },
+        
+        colaboradores:{
+          type:Array,
+          value : function(){return[]},
+          notify:true
+        },
+
+        regionales:{
+          type:Array,
+          value : function(){return[]},
+          notify:true
+        },
+        
+        usuario:{
+          type:Object,
+          value : function(){return {}},
+          notify:true
+        },
+
+        regionalesAutorizadas:{
+          type:Array,
+          value : function(){return[]},
+          notify:true
+        }, 
+        generos:{
+          type:Array,
+          value : function(){return[]},
+          notify:true
+        },
+        tiposDocumento:{
+          type:Array,
+          value : function(){return[]},
+          notify:true
+        },
+        alivioEmocional:{
+          type:Object,
+          value :function(){return {}},
+          notify:true
+        }
+      },
+
+      __getAlivioEmocional:function(sesion){
+        return (sesion && sesion.Meta && sesion.Meta.AlivioEmocionalParametros )?  JSON.parse(sesion.Meta.AlivioEmocionalParametros):  {};
+      },
+
+      __getColaboradores:function(sesion){
+        return (sesion && sesion.Meta && sesion.Meta.Colaboradores )?  JSON.parse(sesion.Meta.Colaboradores):  [];
+      },
+
+      __getRegionales:function(sesion){
+        return (sesion && sesion.Meta && sesion.Meta.Regionales )?  JSON.parse(sesion.Meta.Regionales):  [];
+      },
+
+      __getUsuario:function(sesion){
+        return (sesion && sesion.Meta && sesion.Meta.PersonaConPerfiles )?  JSON.parse(sesion.Meta.PersonaConPerfiles):  {};
+      },
+
+      __getRegionalesAutorizadas:function(sesion){
+        //return   (this.usuario) ? this.usuario.Regionales : [];
+        return (sesion && sesion.Meta && sesion.Meta.PersonaConPerfiles )?  JSON.parse(sesion.Meta.PersonaConPerfiles).Regionales:  [];
+      },
+
+      __getGeneros:function(sesion){
+        return (sesion && sesion.Meta && sesion.Meta.Generos )?  JSON.parse(sesion.Meta.Generos):  [];
+      },
+
+      __getTiposDocumento:function(sesion){
+        return (sesion && sesion.Meta && sesion.Meta.TiposDocumento )?  JSON.parse(sesion.Meta.TiposDocumento):  [];
+      },
+
+
+      __fillSessionData:function(sesion){
+
+        this.colaboradores= this.__getColaboradores(sesion);
+        this.regionales = this.__getRegionales(sesion);
+        this.usuario = this.__getUsuario(sesion);
+        this.regionalesAutorizadas = this.__getRegionalesAutorizadas(sesion);
+        this.generos = this.__getGeneros(sesion);
+        this.tiposDocumento = this.__getTiposDocumento(sesion);
+        this.alivioEmocional = this.__getAlivioEmocional(sesion);
+      },
+
+
+      setSessionData:function(sesion){
+        this.sesion=sesion;
+        this.__fillSessionData(sesion);
+      },
+
+      resetSessionData:function(){
+                
+        localStorage.removeItem("sesion");
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("colaboradores");
+        localStorage.removeItem("alivioEmocional");
+        localStorage.removeItem("generos");
+        localStorage.removeItem("regionales");
+        localStorage.removeItem("regionalesAutorizadas");
+        localStorage.removeItem("tiposDocumento");
+
+      }
+
+
+    });
+  </script>
+</dom-module>

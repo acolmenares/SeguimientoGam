@@ -1,0 +1,66 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel "import" href="../shared-styles.html">
+<link rel="import" href="../my-icons.html">
+
+<dom-module id="miembro-gam-list">
+  <template>
+    <style  include="shared-styles">
+      :host {
+        display: block;
+        padding: 0px; 
+        
+      }
+      
+    </style>
+    
+    <iron-list items="[[miembros]]" as="item" id="list"> 
+    <template> 
+      <div>
+      <div tabindex$="[[tabIndex]]" class="card card-in-list">
+        <div class="card-header" >[[item.Nombres]] [[item.Apellidos]]</div>
+        <div class="card-body">
+          <div>[[item.TipoDocumento]]:[[item.Documento]]</div>
+          <div>[[item.Genero]]</div>
+          <div>[[__formatDate(item.FechaNacimiento)]]</div>
+          <div></div>
+        </div>
+        <div class="card-footer">
+          <paper-icon-button icon="my-icons:update" on-tap="__update"></paper-icon-button>
+          <paper-icon-button icon="my-icons:delete" on-tap="__delete"></paper-icon-button>
+        </div>
+      </div>
+      </div>
+    </template>
+    </iron-list>
+    
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'miembro-gam-list',
+   
+      __update:function(evt, src){
+        this.fire("update", evt.model);
+      },
+
+      __delete:function(evt, src){
+        this.fire("delete", evt.model);
+      },
+
+            
+      __formatDate:function(date){
+        return window.aicl.formatDate(date) ;
+      }
+      
+      /*,
+      refresh:function(){
+        this.$.list.fire('iron-resize');
+      }*/
+
+    });
+  </script>
+</dom-module>

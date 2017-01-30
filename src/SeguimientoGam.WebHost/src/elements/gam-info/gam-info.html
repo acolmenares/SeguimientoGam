@@ -1,0 +1,57 @@
+<script src="../../../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+
+<link rel="import" href="../../tablas/tablas-soporte.html">
+<link rel "import" href="../../shared-styles.html">
+<link rel="import" href="../../my-icons.html">
+
+<dom-module id="gam-info">
+  <template>
+
+    <style  include="shared-styles">
+      :host {
+        display: block;
+        padding: 0px; 
+      }
+      
+    </style>
+
+    <app-localstorage-document key="colaboradores" data="{{__colaboradores}}"></app-localstorage-document>
+    <app-localstorage-document key="regionales" data="{{__regionales}}"></app-localstorage-document>
+        
+      <div class="card">
+        <div class="card-body">
+           <div>[[gam.Nombre]]</div>
+           <div>[[__regionalConMunicipio(gam, __regionales)]]</div>      
+           <div>[[__encargado(gam,__colaboradores)]]</div>
+        </div>
+      </div>
+    
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'gam-info',
+         
+      __encargado:function(item,colaboradores){
+        if(!item) return;
+        var encargadoEncuesta = _.find( colaboradores, function(o) { return o.Id == item.EncargadoId });
+        return  encargadoEncuesta? ( encargadoEncuesta.Nombres + " " + encargadoEncuesta.Apellidos) :'';
+      },
+
+      __regionalConMunicipio:function(item, regionales){
+          if(!item) return;
+          var regional = _.find( regionales, function(o) { return o.Id == item.RegionalId });
+          if( !regional) return;
+          var municipio = _.find( regional.Municipios, function(o) { return o.Id == item.MunicipioId });
+          return   regional.Codigo + " " + regional.Nombre + " - " +  municipio.Codigo+ " " +municipio.Nombre;
+      }
+
+    });
+
+  </script>
+</dom-module>

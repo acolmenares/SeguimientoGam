@@ -1,0 +1,251 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+
+<!-- <link rel="import" href="gam/gam-service.html"> !-->
+<link rel="import" href="gam/gam-list.html">
+<link rel="import" href="gam/gam-consultar.html">
+<link rel="import" href="gam/gam-crear.html">
+<link rel="import" href="gam/gam-actualizar.html">
+<link rel="import" href="gam/gam-borrar.html">
+
+<link rel="import" href="services/remote-service.html">
+<link rel="import" href="elements/busy-spinner/busy-spinner.html">
+<link rel="import" href="elements/error-message/error-message.html">
+<link rel="import" href="common/div-card.html">
+<link rel="import" href="common/div-toolbar.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="gam-index">
+  <template>
+    <style >
+      :host {
+        display: block;
+        margin: 0px;
+        padding: 0px;
+        @apply --layout-vertical;
+      }
+
+      a{
+        text-decoration: none;
+      }
+
+      
+    </style>
+
+    <remote-service id="service" 
+      query-model="gam/miembros" query-last-response="{{gamResponse}}"
+      create-model="gam"
+      update-model="gam">
+    </remote-service>
+   
+      
+    <div-toolbar opened>
+      <iron-selector selected="{{action}}" attr-for-selected="name" role="navigation" >
+        <a name="consultar" href="#/gam/consultar">
+          <paper-icon-button icon="my-icons:search"></paper-icon-button>
+        </a>
+        <a name="crear" href="#/gam/crear">
+          <paper-icon-button icon="my-icons:add-circle"></paper-icon-button>
+        </a>             
+      </iron-selector>
+    </div-toolbar>
+    
+    <div-card>
+                   
+        <busy-spinner id="spinner"></busy-spinner>       
+      
+        <iron-pages
+            selected="[[action]]"
+            attr-for-selected="name"
+            fallback-selection="list"
+            role="main">
+            <gam-list name="list" 
+               gams="[[gams]]" 
+               on-update="__update" 
+               on-delete="__delete"  
+               on-show-members="__showMembersHandler"
+               on-show-encuestas="__showEncuestasHandler"
+               id="list"> 
+            </gam-list>        
+            <gam-consultar name="consultar" on-aceptar="__aceptarConsultar" on-cancelar="__cancelar" ></gam-consultar>
+            <gam-crear name="crear" on-aceptar="__aceptarCrear" on-cancelar="__cancelar" id="gamCrear" ></gam-crear>
+            <gam-actualizar name="actualizar" on-aceptar="__aceptarActualizar" on-cancelar="__cancelar" id="gamActualizar"></gam-actualizar>
+            <gam-borrar name="borrar" on-aceptar="__aceptarBorrar" on-cancelar="__cancelar" id="gamBorrar"  ></gam-borrar>
+        </iron-pages>   
+
+        <paper-toast id="toast"></paper-toast>
+        <error-message id="errorMessage"></error-message>
+      
+    </div-card>
+  </template>
+
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'gam-index',
+      
+      ready:function(){
+        console.log("gam-index is ready");
+        this.$.service.query();
+      },
+
+      properties: {
+              
+        active:{
+          type:Boolean,
+          value:false
+        },
+
+        action: {
+          type: String,
+          reflectToAttribute: true
+        },
+
+        gamResponse:{
+          type:Object,
+          value:function(){return null;},
+          observer:"__gamResponseChanged"
+        },
+
+        selectedItem:{
+          type:Object,
+          value: function(){ return null;},
+          notify:true
+        },
+
+        selectedIndex:{
+          type:Number
+        }
+
+      },
+
+      observers:[
+        '__stateChanged(active, action)'
+      ],
+
+      __gamResponseChanged:function(gamResponse){
+        console.log("__gamResponseChanged", gamResponse);
+        this.gams= (gamResponse && gamResponse.Results)? gamResponse.Results: [];
+      },
+
+      __stateChanged:function(active, action){
+        console.log("__stateChanged active, action, this.action",active, action, this.action)
+        if(active){
+          //this.$.list.style.display= (action)?"none":"";
+          //this.$.list.hidden= (action)?true:false;
+        }
+      },
+
+      __update:function(evt, src){
+        console.log( "__update gam-index")
+        this.$.gamActualizar.load( evt.detail.item);
+        location.href="#/gam/actualizar" ;
+
+      },
+
+      __delete:function(){
+        //this.$.gamABorrar.load( evt.detail.item)
+        location.href="#/gam/borrar" 
+
+      },
+
+      __aceptarConsultar:function(evt, src){
+        
+      },
+
+      __aceptarBorrar:function(evt, src){
+
+      },
+      
+      
+      __aceptarActualizar:function(evt, src){
+
+        var data = evt.detail;
+        var self=this;
+        this.__save(data, (response)=>{
+          var item = response.Data;
+          var index = _.findIndex(self.gams, function(o) { return o.Id == data.Id; });
+          self.set("gams." + index, item);
+        });
+
+      },
+
+      __aceptarCrear:function(evt, src)
+      {
+        console.log("__aceptarCrea evt.detail", evt.detail)
+        var data = evt.detail;
+        var self=this;
+
+        this.__save(data, (response)=>{
+
+          self.$.gamCrear.reset();
+          self.push("gams", response.Data)
+
+        });
+
+      },
+
+
+      __save:function(data, successFn){
+        var self=this; 
+        this.$.spinner.open();
+        this.$.service.save(data,
+        function(response)
+        {
+          console.log("Exito Debe hacer algo con el response", response);
+          self.$.toast.fitInto = data.Id? self.$.gamActualizar: self.$.gamCrear;
+          self.$.toast.text="Registro "+ (data.Id?"Actualizado:":"Creado:") + response.Data.Id + " " + response.Data.Nombre;
+          self.$.toast.open();
+          if(successFn){
+            successFn(response);
+          }
+          
+        },
+        function(err){
+          console.log("Error talvez debo hacer algo con el error", err);
+          self.$.errorMessage.response= err;
+          self.$.errorMessage.open();
+
+        },
+        function(){
+          console.log("Siempre... ");
+          self.$.spinner.close();
+        });
+      },
+
+
+
+      __showMembersHandler:function(evt, src)
+      {
+        console.log("__showMembersHandler item ", evt.detail.item);
+        this.selectedIndex= evt.detail.index;
+        this.selectedItem = evt.detail.item;
+        location.href="#/miembro-gam"
+      },
+
+      __showEncuestasHandler:function(evt, src)
+      {
+        console.log("__showMEncuestasHandler item ", evt.detail.item);
+        this.selectedIndex= evt.detail.index;
+        this.selectedItem = evt.detail.item;
+        location.href="#/encuesta-gam"
+      },
+
+      __cancelar:function(evt, src)
+      {
+        window.history.go(-1);
+      }
+
+    });
+  </script>
+</dom-module>

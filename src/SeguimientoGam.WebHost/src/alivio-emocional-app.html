@@ -1,0 +1,480 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+
+<link rel="import" href="my-icons.html">
+<link rel="import" href="tablas/tablas-soporte.html">
+<link rel="import" href="services/auth-service.html">
+<link rel="import" href="services/remote-service.html">
+<link rel="import" href="services/query-service.html">
+<link rel="import" href="elements/login-elm/login-elm.html">
+<link rel="import" href="elements/error-message/error-message.html">
+<link rel="import" href="elements/confirm-message/confirm-message.html">
+<link rel="import" href="elements/prompt-message/prompt-message.html">
+
+<link rel="import" href="alivio-emocional/encuestas-disponibles.html">
+<link rel="import" href="alivio-emocional/participantes-encuesta.html">
+<link rel="import" href="alivio-emocional/almacen-participantes.html">
+<link rel="import" href="alivio-emocional/encuesta-encurso.html">
+<link rel="import" href="alivio-emocional/encuesta-card.html">
+<link rel="import" href="alivio-emocional/sin-informacion.html">
+<link rel="import" href="elements/termometro-elm/termometro-elm.html">
+
+<link rel="import" href="common/div-toolbar.html">
+
+<link rel="import" href="common/div-card.html">
+
+<dom-module id="alivio-emocional-app">
+
+  <template>
+
+    <style>
+
+      participantes-encuesta{
+        margin:auto;
+      }
+
+      termometro-elm{
+        margin: auto;
+      }
+    </style>
+    <app-localstorage-document key="sesion" data="{{__sesion}}"></app-localstorage-document>
+
+    <app-location use-hash-as-path route="{{route}}"></app-location>
+    <app-route
+        route="{{route}}"
+        pattern="/:"
+        data="{{routeData}}"
+        tail="{{subroute}}">
+    </app-route>
+
+    <tablas-soporte></tablas-soporte>
+    <auth-service id="auth"></auth-service>
+
+    <query-service id="queryEncuestas" model="encuestagam" last-response="{{encuestas}}"  ></query-service>
+
+    <remote-service id="serviceRespuestaEncuesta" 
+      query-model="encuestagam/respuestas"
+      create-model="respuestaencuestagam"
+      update-model="respuestaencuestagam">
+    </remote-service>
+        
+    <almacen-participantes items="{{participantes}}"  count="{{numeroParticipantes}}"  id="almacen"></almacen-participantes>
+    <encuesta-encurso item="{{encurso}}" id="encurso"></encuesta-encurso>
+    
+    <div-toolbar id="toolbar">
+      <paper-icon-button icon="my-icons:sign-out" on-tap="logout" disabled$="[[__calculateDisabledLogout(__online,logged)]]" ></paper-icon-button>
+    </div-toolbar>
+      
+    <div-card>      
+      <iron-pages
+            selected="[[page]]"
+            attr-for-selected="name"        
+            fallback-selection="login"
+            role="main">
+        <sin-informacion name="sininformacion" 
+          logged="[[logged]]" 
+          online="[[__online]]"
+          numero-encuestas="[[__calcularNumeroDeEncuestas(encuestas)]]"
+          numero-participantes="[[numeroParticipantes]]"
+          on-continuar= '__recargar' 
+          on-finalizar='__finalizarSesion'
+          encurso="[[encurso]]">
+        </sin-informacion>
+        <login-elm  name="login"  on-try-login="__tryLoginHandler"></login-elm>
+        <encuestas-disponibles name="encuestas" items="[[encuestas.Results]]" on-seleccionar="__seleccionarEncuesta"></encuestas-disponibles>
+        <encuesta-card  name="ficha" item="[[encurso]]" on-continuar='__continuarEncuesta' on-finalizar='__finalizarEncuesta' ></encuesta-card>
+        <participantes-encuesta
+          name="participantes"
+          participantes="[[participantes]]"
+          on-update="__update"
+          on-upload="__upload"
+          id="participantes"
+          logged="[[logged]]"
+          online="[[__online]]">
+        </participantes-encuesta>
+        <termometro-elm name="termometro" on-done='__aceptarActualizar' on-canceled='__cancelar'  id="termometro"></termometro-elm>
+        <error-message  name="error" id="errorMessage" on-iron-overlay-closed="__cancelar"></error-message>
+        <prompt-message name="prompt" id="promptMessage"></prompt-message>
+      </iron-pages>
+
+    </div-card>
+    
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'alivio-emocional-app',
+
+      ready:function(){   
+
+        this.async( ()=>{
+          
+          if( this.__sesion && this.__sesion.UserId){
+            var auth = this.authenticate("","");
+            auth.then( (logged)=>{
+              this.__init();
+            });     
+          }
+          else{
+            this.__init();
+          } 
+        });
+
+      },
+
+      properties: {
+                
+        logged:{
+          type:String,
+          value :false,
+          notify:true
+        },
+
+        __online:{
+            type:Boolean,
+            observer:'__onlineChanged'
+        },
+
+        __authenticating:{
+            type:Boolean
+        }
+
+      },
+
+      observers: [
+        '__subrouteChanged(subroute)'
+      ],
+
+
+      __init:function(){
+        
+        this.__changeHref(this.__calculatePage()); 
+        this.__online=navigator.onLine;        
+        window.addEventListener('online', function(){this.__online=true}.bind(this));
+        window.addEventListener('offline', function(){this.__online=false}.bind(this));
+      },
+
+      __subrouteChanged:function(subroute){
+        console.log("_subrouteChanged subroute" , subroute);
+        if( subroute  && subroute.prefix){   
+          this.page=subroute.prefix.replace("/","");
+        }
+      },
+
+      __calcularNumeroDeEncuestas:function(encuestas){
+        return (encuestas && encuestas.Results)? encuestas.Results.length:0;
+      },
+
+
+      __onlineChanged:function(online, oldvalue){
+          if(  typeof oldvalue != "undefined"  &&  online && !this.logged){
+              this.authenticate("","");
+          }
+      },
+
+
+      __tryLoginHandler:function(evt, src){
+      
+        var auth =this.authenticate(evt.detail.username,evt.detail.password);  // TODO MOSTRAR SPINNER , CALCULAR PAGINA
+        
+        auth.then( (logged)=>{
+          this.__changeHref(this.__calculatePage()); 
+        });      
+
+      },
+
+      authenticate:function(username, password){
+                
+        var auth = this.$.auth;
+        var self=this;
+               
+        return new Promise( (resolve, reject)=>{
+          auth.login({ username: username, password: password}, 
+          function(response)
+          {
+            self.logged=true;
+          },
+          function(err)
+          {
+            self.logged=false;
+          },
+          function(){
+            resolve(self.logged)  ;
+          });                    
+        });
+
+      },
+
+      logout:function(){
+                
+        var auth = this.$.auth;
+        auth.logout(
+          function(response)
+          {
+            this.logged=false;
+            var page = this.__calculatePage();
+            this.__changeHref(page);
+            console.log("logout response",response);
+
+          }.bind(this),
+          function(err)
+          {
+            console.log("logout err",  err);
+            this.__showError(err);
+          }.bind(this));       
+      },
+
+      __update:function(evt, src){
+          this.__participante= evt.detail.item;
+          this.$.termometro.selectOption( evt.detail.item.Respuestas[0].Valor ) ;
+          this.__changeHref("termometro");
+      },
+
+      __aceptarActualizar:function(evt, src){
+          
+          if(!this.__participante) return;
+          
+          this.__participante.Respuestas[0].Valor = evt.detail.Valor;
+          this.__participante.Respuestas[0].Texto = evt.detail.Texto;
+
+          this.$.almacen.markAsLocalSaved(this.__participante);
+
+          if(this.logged && navigator.onLine){
+              this.__tryToSave(this.__participante,false) ;
+          }
+
+          this.__goBack();
+      },
+
+      __cancelar:function(){
+        this.__goBack();
+      },
+
+      __upload:function(evt, src){
+               
+        this.__participante= evt.detail.item;
+        this.__tryToSave(this.__participante,true);
+
+      },
+
+      __tryToSave:function(item, verbose){
+          this.$.almacen.markAsUploading(item,true);
+          this.__save(item.Respuestas[0],
+            (response)=>{
+                item.Respuestas[0]=response.Data;
+                this.$.almacen.markAsRemoteSaved(item);
+            },
+            null,
+            ()=>{
+                this.$.almacen.markAsUploading(item,false);
+            }, 
+            verbose);
+      },
+
+      __save:function(data, successFn,errorFn, alwaysFn, verbose){
+        var self=this; 
+        this.$.serviceRespuestaEncuesta.save(data,
+        function(response)
+        {
+          if(successFn ){
+            successFn(response);
+          }
+          
+        },
+        function(err){
+          if(verbose){
+            self.__showError(err);
+            if(errorFn){
+                errorFn(err);
+            }
+          }
+        },
+        function(){
+          if(alwaysFn){
+              alwaysFn();
+          }
+        });
+      },
+
+      __calculatePage:function(){
+
+          console.log("__calculatePage isEmpty, online, logged", this.$.almacen.isEmpty, navigator.onLine, this.logged )
+
+          if( navigator.onLine && ! this.logged){
+            return "login"
+          } 
+          else if(! this.$.almacen.isEmpty){
+              return "ficha";
+          }
+          else if( !navigator.onLine ){
+              return "sininformacion";
+          } 
+          else if( ! this.logged ){
+              return "login"
+          } 
+          else return "encuestas"
+      },
+
+      __continuarEncuesta:function(){
+        this.__changeHref("participantes") ;
+      },
+
+      __finalizarEncuesta:function(){
+
+        this.$.promptMessage.mensaje="Digite el codigo de confirmación para finalizar la Encuesta";
+
+        this.$.promptMessage.onClose( 
+          function(prompt){
+            if ( this.$.promptMessage.closingReason.confirmed && this.$.promptMessage.respuesta == "qazplm56"){
+              this.__aceptarFinalizarEncuesta();
+            }
+            else{
+              this.__goBack();
+            }
+          }.bind(this));
+
+        this.__changeHref("prompt") ;
+        this.$.promptMessage.open();
+      },
+
+
+      __aceptarFinalizarEncuesta:function(){      
+         this.$.encurso.reset();
+         this.$.almacen.reset();
+         this.__changeHref( this.__calculatePage() );
+      },
+
+
+      __seleccionarEncuesta:function(evt, src){
+        var encuestaSeleccionada=evt.detail.item;
+        this.$.serviceRespuestaEncuesta.queryParams= { Id : encuestaSeleccionada.Id };
+        var self=this;
+        this.$.serviceRespuestaEncuesta.query(
+        (response)=>{
+           console.log("Tenemos Response RespuestaEncuesta", response);
+           if( response.Results && response.Results.length>0 && response.Results[0].Participantes && response.Results[0].Participantes.length>0 ){
+             self.$.almacen.load(response.Results[0].Participantes);
+             self.$.encurso.load(encuestaSeleccionada);
+             self.__changeHref( self.__calculatePage() );
+          }
+          else{
+            self.__showError("La Encuesta Seleccionada no tiene Participantes");
+          }
+
+        },
+        (error)=>{
+          self.__showError(error);
+        },
+        ()=>{
+        });
+
+      },
+
+      __showError:function(error){
+        if ( typeof error=="string"){
+          this.$.errorMessage.mensaje= error;
+          this.$.errorMessage.response={};
+        }
+        else{
+          this.$.errorMessage.mensaje= "";
+          this.$.errorMessage.response= error;
+        }
+        
+        this.__changeHref("error");
+        this.$.errorMessage.open();
+      },
+
+
+      __changeHref:function(page){
+        // revisar si es la pagina de "encuestas",  hacer peticion, mostrar spinner
+        if(page=="encuestas"){
+          
+          this.$.queryEncuestas.params= { EncargadoId: this.__sesion.UserId };
+
+          this.$.queryEncuestas.execute(
+            function(response){
+              if( response.Results && response.Results.length>0){
+                location.href="#/"+page ;
+              }
+              else{
+                location.href="#/sininformacion" ;
+                this.__showError("Sin encuestas");
+              }
+
+            }.bind(this),
+
+            function(error){
+              this.__showError(error);
+            }.bind(this),
+
+            function(){
+
+            }.bind(this)
+          );
+        }
+        else{
+          location.href="#/"+page ;
+        }
+
+      },
+
+      __recargar:function(){
+        var page = this.__calculatePage();
+        this.__changeHref(page);
+      },
+
+
+      __finalizarSesion:function(){
+        this.logout();
+      },
+
+      __goBack:function(){
+        window.history.go(-1);
+      },
+
+      __calculateDisabledLogout:function(online, logged){
+        console.log("__calcularMostarCerrar", online, logged)
+        return  !(online && logged &&  ( !this.$.almacen || this.$.almacen.count== 0));
+      }
+
+
+      /*
+
+      online:SI      logged:NO     almacenVacio: SI  =>   login-elm
+      online:SI      logged:SI     almacenVacio: SI  =>   encuestas-disponibles
+
+      online:NO      logged:NO     almacenVacio: SI  =>   AvisoSinServicioSinPartipantes
+      online:NO      logged:SI     almacenVacio: SI  =>   AvisoSinServicioSinPartipantes
+
+      online:NO      logged:NO     almacenVacio: SI  =>   AvisoSinServicioSinPartipantes
+      online:NO      logged:SI     almacenVacio: SI  =>   AvisoSinServicioSinPartipantes
+      online:SI      logged:NO     almacenVacio: SI  =>   login-elm
+      online:SI      logged:SI     almacenVacio: SI  =>   encuestas-disponibles
+
+      online:NO      logged:NO     almacenVacio: NO  =>   Participantes / termometro-elm  / CierreEncuesta
+      online:NO      logged:SI     almacenVacio: NO  =>   Participantes / termometro-elm  / CierreEncuesta
+      online:SI      logged:NO     almacenVacio: NO  =>   Participantes / termometro-elm  / CierreEncuesta
+      online:SI      logged:SI     almacenVacio: NO  =>   Participantes / termometro-elm  / CierreEncuesta
+
+      online:NO      logged:NO     almacenVacio: NO  =>   Participantes / termometro-elm  / CierreEncuesta
+      online:NO      logged:NO     almacenVacio: SI  =>   AvisoSinServicioSinPartipantes
+      online:NO      logged:SI     almacenVacio: NO  =>   Participantes / termometro-elm  / CierreEncuesta
+      online:NO      logged:SI     almacenVacio: SI  =>   AvisoSinServicioSinPartipantes
+      online:SI      logged:NO     almacenVacio: NO  =>   Participantes / termometro-elm  / CierreEncuesta
+      online:SI      logged:NO     almacenVacio: SI  =>   login-elm
+      online:SI      logged:SI     almacenVacio: NO  =>   Participantes / termometro-elm  / CierreEncuesta
+      online:SI      logged:SI     almacenVacio: SI  =>   encuestas-disponibles
+      */
+            
+    });
+  </script>
+</dom-module>

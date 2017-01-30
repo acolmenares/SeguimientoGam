@@ -1,0 +1,90 @@
+<script src="../../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href= "../../bower_components/vaadin-date-picker/vaadin-date-picker.html">
+<link rel="import" href="../tablas/tablas-soporte.html">
+<link rel="import" href="../shared-styles.html">
+
+<dom-module id="miembro-gam-crear">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 0px;
+        max-width: 400px;
+        margin: auto;
+      }
+    </style>
+
+    <app-localstorage-document key="generos" data="{{generos}}"></app-localstorage-document>
+    <app-localstorage-document key="tiposDocumento" data="{{tiposDocumento}}"></app-localstorage-document>
+        
+    <form is="iron-form" method="get" action="/" id="form" class="card">
+      <div class="card-body">
+         <paper-input name="Nombres" label="Nombres" required auto-validate></paper-input>
+         <paper-input name="Apellidos" label="Apellidos" required auto-validate></paper-input>
+         <vaadin-date-picker name="FechaNacimiento" label="Fecha Nacimiento" id="fechaNacimiento" ></vaadin-date-picker>
+         <vaadin-combo-box name="TipoDocumento"
+           label="Tipo Documento"
+           items="[[tiposDocumento]]"
+           required auto-validate>
+        </vaadin-combo-box>
+
+         <paper-input name="Documento" label="Documento" maxlength=16 required auto-validate></paper-input>
+         
+         <vaadin-combo-box name="Genero"
+           label="Genero"
+           items="[[generos]]"
+           required auto-validate>
+        </vaadin-combo-box>
+
+      </div>
+
+      <div class="card-footer center-horizontal">
+        <paper-icon-button icon="my-icons:cancel" class="giant cancel" on-tap="__cancelar"></paper-icon-button>
+        <paper-icon-button icon="my-icons:done" class="giant done" on-tap="__aceptar"  id="submitButton">
+        </paper-icon-button>
+      </div>
+      
+    </form>
+    <div style="height: 50px;"></div>
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'miembro-gam-crear',
+
+      ready:function(){
+        window.aicl.localizeCalendar(this.$.fechaNacimiento);
+      },
+      
+      __aceptar:function(evt, src){
+
+        console.log("__sumit, form",this.$.form.serialize() );
+        
+        if( this.$.form.validate() ){ 
+          this.fire('aceptar', this.$.form.serialize());
+        }
+
+      },
+
+      __cancelar:function(evt, src){
+                
+        this.fire('cancelar');
+
+      },
+
+      reset:function(){
+        this.$.form.reset();
+      }
+
+    });
+  </script>
+</dom-module>

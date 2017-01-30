@@ -1,0 +1,49 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../tablas/tablas-soporte.html">
+
+<dom-module id="miembro-gam-consultar">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 0px;
+      }
+    </style>
+        
+     <div> Vamos a cosultar .....</div>
+     <paper-button on-tap="__cancelar">Cancelar</paper-button>
+     <paper-button on-tap="__aceptar">Aceptar</paper-button>
+   
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'miembro-gam-consultar',
+      
+      ready:function(){
+        
+      },
+
+      properties :{
+          
+      },
+      
+      __cancelar:function(){
+        console.log("cancelar");
+        this.fire('cancelar');
+
+      },
+
+      __aceptar:function(){
+        console.log("aceptar");
+        this.fire('aceptar');
+      }
+ 
+  
+    });
+  </script>
+</dom-module>

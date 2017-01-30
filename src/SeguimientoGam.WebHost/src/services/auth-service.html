@@ -1,0 +1,64 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="query-service.html">
+<link rel="import" href="../tablas/tablas-soporte.html">
+
+<dom-module id="auth-service">
+  <template>
+    <tablas-soporte id="soporte"></tablas-soporte>
+    <query-service id="service" 
+      model="authenticate"
+      last-error="{{lastError}}"
+      last-response="{{lastResponse}}">
+    </query-service>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'auth-service',
+     
+      hostAttributes: {
+        hidden: true
+      },
+
+      properties: {
+
+        lastResponse: { type:Object, value:function(){ return {}; }, notify: true },
+        
+        lastError: { type:Object, value:function(){ return {}; }, notify: true },
+
+      },
+
+      login:function(credentials, successFn, failureFun, alwaysFn){
+        this.$.soporte.resetSessionData();
+        this.$.service.action="";
+        this.$.service.params= { username:credentials.username, password:credentials.password };
+        var self=this;
+        var req = this.$.service.execute( 
+          function(response)
+          {
+            self.$.soporte.setSessionData(response);
+            if(successFn) successFn(response);
+          },
+          function(error){
+            if(failureFun) failureFun(error);
+          },
+          alwaysFn
+        );        
+
+        return req;
+
+      },
+
+      logout:function( successFn, failureFun,alwaysFn ){
+        this.$.soporte.resetSessionData();
+        this.$.service.action="logout";
+        this.$.service.params= {};
+        var req = this.$.service.execute( successFn, failureFun, alwaysFn);
+        return req;
+        
+      }
+
+    });
+  </script>
+</dom-module>

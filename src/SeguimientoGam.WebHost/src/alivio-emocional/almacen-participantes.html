@@ -1,0 +1,163 @@
+<script src="../../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="almacen-participantes">
+
+  <template></template>
+
+  <script>
+
+    Polymer({
+      is: 'almacen-participantes',
+
+      hostAttributes: {
+        hidden: true
+      },
+
+      ready:function(){
+        console.log("almacen-participantes ready");
+        this.items = this.__getFromLocalStorage();
+      },
+
+      properties: {
+        items :{
+            type:Array,
+            value:function(){ return []; },
+            notify:true
+        },
+       
+        count:{
+            type:Number,
+            computed: '__getCount(items.*)',
+            notify:true,
+        },
+
+        isEmpty:{
+            type:Boolean,
+            computed: '__isEmpty(items.*)',
+            notify:true,
+        },
+
+        hasLocalData:{
+            type:Boolean,
+            computed: '__hasLocalData(items.*)',
+            notify:true,
+        }
+      },
+
+      __getCount:function(items){
+          return (items && items.base )? items.base.length:0;
+      },
+
+      __getFromLocalStorage:function(){
+          
+          var items=[];
+                   
+         _.each( Object.keys(localStorage),
+           function(o){
+               if (o.startsWith('Participante_')){
+                   var item = JSON.parse( localStorage[o]);
+                   item.uploading=false; // remover uploading que puedan estar pendientes
+                   items.push( item);
+               }
+            });
+
+         return _.sortBy(items, "MiembroGam.NombreCompleto");
+
+      },
+
+      __saveToLocalStorage:function(item){
+        localStorage['Participante_'+ item.MiembroGam.Id]= JSON.stringify(item);
+      },
+
+
+      __resetLocalStorage:function(){
+                   
+        _.each( Object.keys(localStorage),
+           function(o){
+               if (o.startsWith('Participante_')){
+                   localStorage.removeItem(o);
+               }
+        });
+
+      },
+
+      reset:function(){
+          this.__resetLocalStorage();
+          this.set("items", []);
+      },
+
+      load:function(items, append){
+          
+        if(! append ){
+          this.__resetLocalStorage();
+        }
+          
+        _.forEach( items,
+          function(value){
+              value.modified=false;
+              value.MiembroGam.NombreCompleto= value.MiembroGam.Nombres+ " "+  value.MiembroGam.Apellidos;
+              this.__saveToLocalStorage(value);
+        }.bind(this));
+
+        this.set("items", []);
+        this.set("items", this.__getFromLocalStorage()); 
+          
+      },
+
+      markAsLocalSaved:function(item){
+          
+          item.modified=true;
+          this.__saveToLocalStorage(item);
+          
+          var index = _.findIndex(this.items, function(o) { return o.MiembroGam.Id == item.MiembroGam.Id; });
+          var t=item;
+          this.set("items." + index, {});
+          this.set("items." + index, t);
+
+      },
+
+      markAsRemoteSaved:function(item){
+           
+           item.modified=false;
+           this.__saveToLocalStorage(item);
+           
+           var index = _.findIndex(this.items, function(o) { return o.MiembroGam.Id == item.MiembroGam.Id; });
+           var t=item;
+           this.set("items." + index, {});
+           this.set("items." + index, t);
+      },
+
+      markAsUploading:function(item, uploading){
+          console.log("markAsUploading", item, uploading);
+          item.uploading=uploading;
+          this.__saveToLocalStorage(item);
+
+          var index = _.findIndex(this.items, function(o) { return o.MiembroGam.Id == item.MiembroGam.Id; });
+          var t=item;
+          this.set("items." + index, {});
+          this.set("items." + index, t); 
+      },
+
+
+      __hasLocalData:function(items){
+        return ( items && items.base &&  _.findIndex(items.base, o=> { return o.modified } ) >= 0 );
+      },
+
+
+      __isEmpty:function(items){
+          return !items  || !items.base || items.base.length==0;
+      },
+
+      getLocalData:function(){
+          return _.filter(this.items, o=> { return o.modified } );
+      }
+
+/* items
+"{"MiembroGam":{"Id":1,"GamId":1,"Nombres":"Pablo","Apellidos":"Marmol","TipoDocumento":"CC","Documento":"87987","FechaNacimiento":"/Date(1472792400000-0000)/","Genero":"Masculino","FechaCreacion":"/Date(1484593381000-0000)/","CreadoPorId":28},"Respuestas":[{"Id":0,"EncuestaGamId":29,"MiembroGamId":1,"PreguntaPlantillaEncuestaId":1,"FechaCreacion":"/Date(-62135596800000-0000)/","CreadoPorId":0}]}"
+*/
+            
+    });
+  </script>
+</dom-module>
+

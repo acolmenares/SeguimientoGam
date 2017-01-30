@@ -1,0 +1,51 @@
+
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
+<link rel="import" href="../../../bower_components/paper-dialog-behavior/paper-dialog-shared-styles.html">
+<link rel="import" href="../../shared-styles.html">
+<dom-module id="error-message">
+  <template>
+    <style include="paper-dialog-shared-style shared-styles" >
+         :host {
+            min-width: 380px;
+        }
+        .message{
+            padding-left: 15px;
+        }
+    </style>
+        
+    <div class="card card-error">
+      <slot>
+           <div class="card-body message">
+          <p>[[mensaje]]</p>
+          <p>Estatus: [[response.Status]]</p>
+          <p>Texto: [[response.StatusText]]: [[response.ResponseStatus.Message]] </p>
+          <p>URL: [[response.ResponseUrl]]</p>
+          <template is="dom-repeat" items="{{response.ResponseStatus.Errors}}">
+            <p>[[item.FieldName]]: [[item.Message]]</p>
+         </template>
+      </div>
+      
+      <div class="card-footer center-horizontal">
+        <paper-icon-button icon="my-icons:cancel" class="giant cancel" dialog-dismiss></paper-icon-button>
+      </div>
+      </slot>
+    </div>
+    
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'error-message',
+      behaviors: [Polymer.PaperDialogBehavior],
+      properties: {
+        mensaje:{type:String, value:''},
+        response:{type:Object, value:function(){return {};}}
+      }
+            
+    });
+  </script>
+</dom-module>

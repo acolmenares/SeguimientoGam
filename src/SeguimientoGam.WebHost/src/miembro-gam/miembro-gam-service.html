@@ -1,0 +1,112 @@
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../services/query-service.html">
+<link rel="import" href="../services/create-service.html">
+<link rel="import" href="../services/update-service.html">
+
+<dom-module id="miembro-gam-service">
+  <template>
+    
+    <query-service id="query" 
+      model="miembrogam"
+      last-response="{{queryLastResponse}}"
+      last-error="{{queryLastError}}"
+      params="{{queryParams}}">
+    </query-service>
+
+    <create-service id="create" 
+      model="miembrogam"
+      last-response="{{createLastResponse}}"
+      last-error="{{createLastError}}"
+      params="{{createParams}}"
+      body="{{createBody}}">
+    </create-service>
+
+    <update-service id="update" 
+      model="miembrogam"
+      last-response="{{updateLastResponse}}"
+      last-error="{{updateLastError}}"
+      params="{{updateParams}}"
+      body="{{updateBody}}">
+    </update-service>
+  
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'miembro-gam-service',
+      
+      hostAttributes: {
+        hidden: true
+      },
+
+      properties: {
+        
+        queryLastResponse: { type:Object, value:function(){ return {}; }, notify: true },
+        queryLastError: { type:Object, value:function(){ return {}; }, notify: true },
+        
+        queryParams: {
+            type:Object, 
+            value:function(){ return {}; }, 
+            notify: false 
+        },
+
+        createParams: {
+            type:Object, 
+            value:function(){ return null; }, 
+            notify: false 
+        },
+
+        createBody: {
+            type:Object, 
+            value:function(){ return null; }, 
+            notify: false 
+        },
+
+        updateLastResponse: { type:Object, value:function(){ return {}; }, notify: true },
+        updateLastError: { type:Object, value:function(){ return {}; }, notify: true },
+
+        updateParams: {
+            type:Object, 
+            value:function(){ return null; }, 
+            notify: false 
+        },
+
+        updateBody: {
+            type:Object, 
+            value:function(){ return null; }, 
+            notify: false 
+        },
+
+        updateLastResponse: { type:Object, value:function(){ return {}; }, notify: true },
+        updateLastError: { type:Object, value:function(){ return {}; }, notify: true },
+
+      },
+    
+      executeQuery:function(successFn, failureFn, alwaysFn){
+        return this.$.query.execute(successFn, failureFn, alwaysFn);
+      },
+
+      executeCreate:function(successFn, failureFn, alwaysFn){
+        return this.$.create.execute(successFn, failureFn, alwaysFn);
+      },
+
+      executeUpdate:function(successFn, failureFn, alwaysFn){
+        return this.$.update.execute(successFn, failureFn, alwaysFn);
+      },
+
+      save:function(data, successFn, failureFn, alwaysFn){
+        var rq= data.Id? this.$.update: this.$.create;
+        rq.body=data;
+        return rq.execute(successFn, failureFn, alwaysFn);
+      }
+     
+
+    });
+  </script>
+</dom-module>
