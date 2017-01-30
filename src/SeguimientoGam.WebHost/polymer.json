@@ -1,12 +1,7 @@
 {
-  "entrypoint": "index.html",
-  "shell": "src/gam-app.html",
+  "entrypoint": "alivio-emocional.html",
+  "shell": "src/alivio-emocional-app.html",
   "fragments": [
-    "src/my-view1.html",
-    "src/gam-view.html",
-    "src/miembro-gam-view.html",
-    "src/my-view3.html",
-    "src/my-view404.html"
   ],
   "sourceGlobs": [
     "src/**/*",

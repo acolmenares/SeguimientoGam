@@ -1,10 +1,12 @@
 {
   "name": "GAM App",
   "short_name": "GAM App",
-  "start_url": "/?homescreen=1",
+  "start_url": "alivio-emocional.html",
   "display": "standalone",
   "theme_color": "#3f51b5",
   "background_color": "#3f51b5",
+  "xwalk_app_version": "0.1",
+  "xwalk_package_id": "org.blumont.co.alivioemocional",
   "icons": [
     {
       "src": "images/manifest/icon-192x192.png",

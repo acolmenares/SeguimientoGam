@@ -70,7 +70,7 @@
     <encuesta-encurso item="{{encurso}}" id="encurso"></encuesta-encurso>
     
     <div-toolbar id="toolbar">
-      <paper-icon-button icon="my-icons:sign-out" on-tap="logout" disabled$="[[__calculateDisabledLogout(__online,logged)]]" ></paper-icon-button>
+      <paper-icon-button icon="my-icons:sign-out" on-tap="logout" disabled$="[[__calculateDisabledLogout(__online,logged,numeroParticipantes)]]" ></paper-icon-button>
     </div-toolbar>
       
     <div-card>      
@@ -116,13 +116,13 @@
 
       ready:function(){   
 
-        this.async( ()=>{
-          
-          if( this.__sesion && this.__sesion.UserId){
+        this.async( function(){
+          console.log("+++++++++++   READY ++++++++++++");
+          if( navigator.onLine && this.__sesion && this.__sesion.UserId){
             var auth = this.authenticate("","");
-            auth.then( (logged)=>{
+            auth.then( function(logged){
               this.__init();
-            });     
+            }.bind(this));     
           }
           else{
             this.__init();
@@ -141,7 +141,12 @@
 
         __online:{
             type:Boolean,
-            observer:'__onlineChanged'
+            observer:'__onlineChanged',
+            notify:true
+        },
+
+        numeroParticipantes:{
+          type:Number
         },
 
         __authenticating:{
@@ -176,7 +181,7 @@
 
 
       __onlineChanged:function(online, oldvalue){
-          if(  typeof oldvalue != "undefined"  &&  online && !this.logged){
+          if(  typeof oldvalue != "undefined"  &&  online && !this.logged  && this.__sesion && this.__sesion.UserId){
               this.authenticate("","");
           }
       },
@@ -186,9 +191,9 @@
       
         var auth =this.authenticate(evt.detail.username,evt.detail.password);  // TODO MOSTRAR SPINNER , CALCULAR PAGINA
         
-        auth.then( (logged)=>{
+        auth.then( function(logged){
           this.__changeHref(this.__calculatePage()); 
-        });      
+        }.bind(this));      
 
       },
 
@@ -197,7 +202,7 @@
         var auth = this.$.auth;
         var self=this;
                
-        return new Promise( (resolve, reject)=>{
+        return new Promise( function(resolve, reject){
           auth.login({ username: username, password: password}, 
           function(response)
           {
@@ -269,14 +274,14 @@
       __tryToSave:function(item, verbose){
           this.$.almacen.markAsUploading(item,true);
           this.__save(item.Respuestas[0],
-            (response)=>{
+            function(response){
                 item.Respuestas[0]=response.Data;
                 this.$.almacen.markAsRemoteSaved(item);
-            },
+            }.bind(this),
             null,
-            ()=>{
+            function(){
                 this.$.almacen.markAsUploading(item,false);
-            }, 
+            }.bind(this), 
             verbose);
       },
 
@@ -359,7 +364,7 @@
         this.$.serviceRespuestaEncuesta.queryParams= { Id : encuestaSeleccionada.Id };
         var self=this;
         this.$.serviceRespuestaEncuesta.query(
-        (response)=>{
+        function(response){
            console.log("Tenemos Response RespuestaEncuesta", response);
            if( response.Results && response.Results.length>0 && response.Results[0].Participantes && response.Results[0].Participantes.length>0 ){
              self.$.almacen.load(response.Results[0].Participantes);
@@ -371,10 +376,10 @@
           }
 
         },
-        (error)=>{
+        function(error){
           self.__showError(error);
         },
-        ()=>{
+        function(){
         });
 
       },
@@ -441,9 +446,9 @@
         window.history.go(-1);
       },
 
-      __calculateDisabledLogout:function(online, logged){
-        console.log("__calcularMostarCerrar", online, logged)
-        return  !(online && logged &&  ( !this.$.almacen || this.$.almacen.count== 0));
+      __calculateDisabledLogout:function(online, logged, numeroParticipantes){
+        console.log("__calcularMostarCerrar", online, logged, numeroParticipantes)
+        return  !(online && logged &&  ( numeroParticipantes == 0));
       }
 
 

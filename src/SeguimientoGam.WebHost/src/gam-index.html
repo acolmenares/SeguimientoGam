@@ -172,7 +172,7 @@
 
         var data = evt.detail;
         var self=this;
-        this.__save(data, (response)=>{
+        this.__save(data, function(response){
           var item = response.Data;
           var index = _.findIndex(self.gams, function(o) { return o.Id == data.Id; });
           self.set("gams." + index, item);
@@ -186,7 +186,7 @@
         var data = evt.detail;
         var self=this;
 
-        this.__save(data, (response)=>{
+        this.__save(data, function(response){
 
           self.$.gamCrear.reset();
           self.push("gams", response.Data)

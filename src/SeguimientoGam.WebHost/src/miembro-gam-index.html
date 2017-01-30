@@ -150,7 +150,7 @@
 
         var data = evt.detail;
         var self=this;
-        this.__save(data, (response)=>{
+        this.__save(data, function(response){
           var item = response.Data;
           var index = _.findIndex(self.miembros, function(o) { return o.Id == data.Id; });
           self.set("miembros." + index, item);
@@ -165,7 +165,7 @@
         data.GamId= this.gam.Id;
         var self=this;
 
-        this.__save(data, (response)=>{
+        this.__save(data, function(response){
 
           self.$.miembroGamCrear.reset();
           self.push("miembros", response.Data)

@@ -141,7 +141,7 @@
 
 
       __hasLocalData:function(items){
-        return ( items && items.base &&  _.findIndex(items.base, o=> { return o.modified } ) >= 0 );
+        return ( items && items.base &&  _.findIndex(items.base, function(o) { return o.modified } ) >= 0 );
       },
 
 
@@ -150,7 +150,7 @@
       },
 
       getLocalData:function(){
-          return _.filter(this.items, o=> { return o.modified } );
+          return _.filter(this.items, function(o) { return o.modified } );
       }
 
 /* items

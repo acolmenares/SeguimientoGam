@@ -12,9 +12,10 @@
 
 module.exports = {
   staticFileGlobs: [
-    'index.html',
+    'alivio-emocional.html',
     'manifest.json',
     'bower_components/webcomponentsjs/webcomponents-lite.min.js',
+    'images/*'
   ],
-  navigateFallback: 'index.html',
+  navigateFallback: 'alivio-emocional.html',
 };
