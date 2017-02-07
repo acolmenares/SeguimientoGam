@@ -81,7 +81,9 @@
         headers="{'Accept': 'application/json'}"
         timeout=15000
         on-upload-request='__fileUploadRequest'
-        on-upload-before='__fileUploadBefore'>
+        on-upload-before='__fileUploadBefore'
+        on-upload-error='__uploadError'
+        on-upload-response='__uploadResponse'>
       </vaadin-upload>  
       <iron-pages
             selected="[[page]]"
@@ -468,9 +470,21 @@
       },
 
       __fileUploadBefore:function(evt, src){
-        console.log ('__fileUploadBefore........');
-        evt.detail.file.uploadTarget = '/gam-api/soporte/crear?Nombre=' + evt.detail.file.name+'&EventoId='+1234;
+        console.log ('__fileUploadBefore........', this.encurso.EventoCalendario.Id);
+        evt.detail.file.uploadTarget = '/gam-api/soporte/crear?Nombre=' + evt.detail.file.name+'&EventoId='+this.encurso.EventoCalendario.Id;
+      },
+
+      __uploadError:function(evt, src){
+        console.log("uplodadError ", evt);
+      },
+
+      __uploadResponse:function(evt, scr){
+        console.log("__uploadResponse", evt);
+        //evt.detail.xhr.status = 200;
+        //evt.detail.xhr.statusText = "OK";
+       // evt.preventDefault();
       }
+      
 
 
       /*

@@ -46,6 +46,7 @@
     <Compile Include="AlivioEmocionalParametros.cs" />
     <Compile Include="Entidades\MiembrosGam.cs" />
     <Compile Include="Entidades\Regionales.cs" />
+    <Compile Include="Entidades\Soportes.cs" />
     <Compile Include="Gestor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Entidades\Usuarios.cs" />

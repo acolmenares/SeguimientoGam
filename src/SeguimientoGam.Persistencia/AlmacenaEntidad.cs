@@ -100,6 +100,7 @@ namespace SeguimientoGam.Persistencia
 		public  Task<long> CrearAsync<T>(T modelo) where T : IEntidad
 		{	
             var result = Execute( async cn => await cn.InsertAsync(modelo, true));
+
             modelo.Id = (int)result.Result;
             cacheClient.Set(modelo);
             return result;

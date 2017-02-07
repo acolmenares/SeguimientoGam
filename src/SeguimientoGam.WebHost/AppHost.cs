@@ -233,6 +233,21 @@ namespace SeguimientoGam.WebHost
 					 (c => c.Resolve<IEventoCalendarioGestor>())
 					 .ReusedWithin(ReuseScope.Request);
 
+            //
+
+            //Gestor Soportes
+            container.Register<ISoporteGestor>
+                (c => new Soportes
+                (new SoporteAlmacen(c.Resolve<IAlmacenaEntidad>(), new ArchivoSoporteAlmacen(valores.RutaSoportes))))
+                   .ReusedWithin(ReuseScope.Request);
+
+            container.Register<ISoporteGestorConsultas>
+                (c => c.Resolve<ISoporteGestor>())
+                .ReusedWithin(ReuseScope.Request);
+ 
+            //
+
+
 			container.RegisterValidators(typeof(GamCrearValidador).Assembly);
 
             container.Register<GamReglasValidacion>
@@ -242,6 +257,9 @@ namespace SeguimientoGam.WebHost
             container.Register<RespuestaEncuestaGamReglasValidacion>
                      (c => new RespuestaEncuestaGamReglasValidacion() )
                      .ReusedWithin(ReuseScope.Request);
+
+
+
 
             CrearTablasGam(connectionFactory, valores);
 
@@ -292,7 +310,8 @@ namespace SeguimientoGam.WebHost
 			Routes.Add<RegionalCrear>("/regional/crear", ApplyTo.Post);
 			Routes.Add<Authenticate>("/login", ApplyTo.All);
 
-            Routes.Add<SoporteCrear>("/soporte/crear");
+            Routes.Add<SoporteCrear>("/soporte/crear", ApplyTo.Post);
+            Routes.Add<SoporteConsultar>("/soporte/consultar", ApplyTo.Get);
 
         }
 

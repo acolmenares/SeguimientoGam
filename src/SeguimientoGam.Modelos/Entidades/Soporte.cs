@@ -18,7 +18,7 @@ namespace SeguimientoGam.Modelos.Entidades
         [Alias("ruta_soporte")]
         public string Ruta { get; set; }
         [Alias("estado")]
-        public int Estado { get; set; }
+        public int? Estado { get; set; }
         [Alias("idevento")]
         public int EventoId { get; set; }
         [Alias("idproyecto")]
@@ -26,7 +26,7 @@ namespace SeguimientoGam.Modelos.Entidades
         [Alias("idregional")]
         public int RegionalId { get; set; }
         [Alias("idperiodo")]
-        public int PeriodoId { get; set; }
+        public int? PeriodoId { get; set; }
         
     }
 }

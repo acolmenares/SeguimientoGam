@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace SeguimientoGam.Modelos.InterfacesPersistencia
 {
-    public interface ISoporteAlmacena: IAlmacenaEntidad<Soporte>, ISoporteConsulta
+    public interface ISoporteAlmacena:  ISoporteConsulta , IAlmacenaEntidad<Soporte>
     {
-        Task<CrearResponse<Soporte>> CrearAsync(SoporteCrear modelo, EntidadAutoinfo<Soporte> autoinfoAlActualizar);
+        Task<CrearResponse<Soporte>> CrearAsync(SoporteCrear modelo);
     }
 
     public interface ISoporteConsulta

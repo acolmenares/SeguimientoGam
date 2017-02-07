@@ -1,8 +1,6 @@
 ﻿using SeguimientoGam.Modelos.Entidades;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using SeguimientoGam.Modelos.InterfacesPersistencia;
 using SeguimientoGam.Modelos.Interfaces;
@@ -15,10 +13,12 @@ namespace SeguimientoGam.Persistencia
     public class SoporteAlmacen : Almacen<Soporte>, ISoporteAlmacena
     {
         readonly IAlmacenaEntidad repositorio;
+        readonly IArchivoSoporteAlmacena archivoSoporteAlmacen;
 
-        public SoporteAlmacen(IAlmacenaEntidad repositorio) : base(repositorio)
+        public SoporteAlmacen(IAlmacenaEntidad repositorio, IArchivoSoporteAlmacena archivoSoporteAlmacen) : base(repositorio)
         {
             this.repositorio = repositorio;
+            this.archivoSoporteAlmacen = archivoSoporteAlmacen;
         }
 
         public async Task<QueryResponse<Soporte>> ConsultarAsync(SoporteConsultar modelo, 
@@ -28,28 +28,33 @@ namespace SeguimientoGam.Persistencia
             
         }
 
-        public async Task<CrearResponse<Soporte>> CrearAsync(SoporteCrear modelo, EntidadAutoinfo<Soporte> autoinfoAlCrear)
+        public async Task<CrearResponse<Soporte>> CrearAsync(SoporteCrear modelo )
         {
-            
+                        
             var evento = await repositorio.ConsultarElPrimeroAsync<EventoCalendario>(q => q.Id == modelo.EventoId);
+
+            var autoinfoAlCrear = new EntidadAutoinfo<Soporte>();
 
             autoinfoAlCrear.SetValue(v => v.RegionalId, evento.RegionalId);
             autoinfoAlCrear.SetValue(v => v.ProyectoId, evento.ProyectoId);
-            autoinfoAlCrear.SetValue(v => v.Extension, MimeTypes.GetMimeType(modelo.Nombre));
-            autoinfoAlCrear.SetValue(v => v.Tamanio, modelo.RequestStream.Length);
+            autoinfoAlCrear.SetValue(v => v.Nombre, modelo.Nombre);
+            autoinfoAlCrear.SetValue(v => v.Tamanio, 0);
+            autoinfoAlCrear.SetValue(v => v.Ruta, "");
+            autoinfoAlCrear.SetValue(v => v.Extension, "");
+
 
             repositorio.IniciarTransaccion();
 
             var soporte = await base.CrearAsync(modelo, autoinfoAlCrear);
-
-            soporte.Data.Nombre = "{0}_{1}".Fmt(soporte.Data.Id, soporte.Data.Nombre);
-
-            soporte.Data.Ruta = "soportes/{0}_{1}/{2}".Fmt(soporte.Data.ProyectoId, soporte.Data.RegionalId, soporte.Data.Nombre);
+            var tamanio = await archivoSoporteAlmacen.CrearAsync(soporte.Data, modelo.RequestStream);
             
-            // guardar el arhivo.... necesito el app config para saber la ruta !!!!
+            soporte.Data.Nombre = archivoSoporteAlmacen.NombreSoporte(soporte.Data);
+            soporte.Data.Ruta = archivoSoporteAlmacen.RutaSoporte(soporte.Data);
+            soporte.Data.Extension = MimeTypes.GetMimeType(modelo.Nombre);
+            soporte.Data.Tamanio = tamanio;
 
             await repositorio.ActualizarAsync(soporte.Data);
-
+            
             repositorio.FinalizarTransaccion();
 
             return soporte;

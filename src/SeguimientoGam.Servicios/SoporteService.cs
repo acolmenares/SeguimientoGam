@@ -1,40 +1,38 @@
-﻿using SeguimientoGam.Modelos.Peticiones;
+﻿using SeguimientoGam.Modelos.Entidades;
+using SeguimientoGam.Modelos.Interfaces;
+using SeguimientoGam.Modelos.InterfacesGestion;
+using SeguimientoGam.Modelos.Peticiones;
 using ServiceStack;
 using ServiceStack.Web;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SeguimientoGam.Servicios
 {
+
+    [Authenticate]
     public class SoporteService:Service
     {
 
+        public ISoporteGestor Gestor { get; set; }
+
         public void Post(SoporteCrear peticion)
         {
-            var filePath  = System.IO.Path.Combine( @"C:\Code\tmp", peticion.EventoId+"_"+ peticion.Nombre?? Guid.NewGuid().ToString("n"));
-
-            Request.GetRequestParams();
-            /*
-            foreach (var uploadedFile in Request.Files)
-            {
-                uploadedFile.SaveTo(filePath);
-            }
-            */
-            Console.WriteLine(Request);
-
-            using (var fs = File.OpenWrite(filePath))
-            {
-                peticion.RequestStream.WriteTo(fs); 
-            }
-            MimeTypes.GetMimeType("");
+             var r=  Gestor.CrearAsync(peticion).Result;
+            //return r ; //  vaadin-upload : arroja error cuando se devulve cualuqier cosa
             
-            Console.WriteLine(peticion.EventoId);
-
         }
+
+        public QueryResponse<Soporte> Get(SoporteConsultar peticion)
+        {
+            return Gestor.ConsultarAsync(peticion, Request).Result;
+        }
+
     }
 
     

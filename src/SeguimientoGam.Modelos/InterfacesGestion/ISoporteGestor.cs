@@ -7,9 +7,9 @@ using ServiceStack.Web;
 
 namespace SeguimientoGam.Modelos.InterfacesGestion
 {
-    public interface ISoporteGestor : ISoporteGestorConsultas, IGestor<Soporte>
+    public interface ISoporteGestor : ISoporteGestorConsultas//, IGestor<Soporte>
     {
-        Task<CrearResponse<Soporte>> ActualizarAsync(SoporteCrear modelo, IRequest peticion);
+        Task<CrearResponse<Soporte>> CrearAsync(SoporteCrear modelo);
 
     }
 

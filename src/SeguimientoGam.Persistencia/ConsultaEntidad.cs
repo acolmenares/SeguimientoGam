@@ -141,7 +141,7 @@ namespace SeguimientoGam.Persistencia
 
         protected T Execute<T>(Func<IDbConnection, T> acciones)
         {
-            return acciones( conexion);
+          return acciones( conexion);
         }
 
 
@@ -169,7 +169,7 @@ namespace SeguimientoGam.Persistencia
 
         public void IniciarTransaccion()
         {
-            if (transaccion != null)
+            if (transaccion == null)
             {
                 Execute(con => transaccion = con.OpenTransaction());
             }

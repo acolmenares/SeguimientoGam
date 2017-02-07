@@ -25,7 +25,7 @@ namespace SeguimientoGam.Persistencia
 
         public string RutaSoporte (Soporte modelo)
         {
-             return ""; 
+             return "{0}/{1}_{2}/{3}_{4}".Fmt(directorioSoportes, modelo.ProyectoId, modelo.RegionalId, modelo.Id, modelo.Nombre); 
         }
 
         public ArchivoSoporteAlmacen(string rutaSoportes)
@@ -47,7 +47,7 @@ namespace SeguimientoGam.Persistencia
             {
                 bytes =filestream.WriteTo(fs); 
             }
-
+            
             //soportes/14_4/430_
 
             return bytes.InTask();
