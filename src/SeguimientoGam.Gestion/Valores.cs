@@ -24,6 +24,14 @@ namespace SeguimientoGam.Gestion
                 return settings.Get("AlivioEmocionalParametros", new AlivioEmocionalParametros());
             }
         }
+
+        public string RutaSoportes
+        {
+            get
+            {
+                return settings.Get("RutaSoportes", "soportes");
+            }
+        }
         
 
     }

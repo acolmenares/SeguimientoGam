@@ -59,6 +59,7 @@
     <Compile Include="PreguntaPlantillaEncuestaServicio.cs" />
     <Compile Include="PlantillaEncuestaServicio.cs" />
     <Compile Include="EventoCalendarioService.cs" />
+    <Compile Include="SoporteService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SeguimientoGam.Modelos\SeguimientoGam.Modelos.csproj">

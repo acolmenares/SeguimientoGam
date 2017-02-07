@@ -46,7 +46,7 @@ namespace SeguimientoGam.WebHost
 			});
 
 			LogManager.LogFactory = new ConsoleLogFactory(debugEnabled: true);;
-			ConfigureRoutes();
+			ConfigureRoutes(); 
 
 
             RegisterTypedResponseFilter<AuthenticateResponse>((request, response, auth) =>
@@ -291,6 +291,8 @@ namespace SeguimientoGam.WebHost
 			Routes.Add<RegionalConsultar>("/regional/consultar", ApplyTo.Get);
 			Routes.Add<RegionalCrear>("/regional/crear", ApplyTo.Post);
 			Routes.Add<Authenticate>("/login", ApplyTo.All);
+
+            Routes.Add<SoporteCrear>("/soporte/crear");
 
         }
 

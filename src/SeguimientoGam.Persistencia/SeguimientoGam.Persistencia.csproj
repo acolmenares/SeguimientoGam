@@ -50,11 +50,13 @@
   <ItemGroup>
     <Compile Include="Almacen.cs" />
     <Compile Include="AlmacenaEntidad.cs" />
+    <Compile Include="ArchivoSoporteAlmacen.cs" />
     <Compile Include="ConsultaEntidad.cs" />
     <Compile Include="ICacheClientExtensions.cs" />
     <Compile Include="MiembroGamAlmacen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegionalAlmacen.cs" />
+    <Compile Include="SoporteAlmacen.cs" />
     <Compile Include="UsuarioAlmacen.cs" />
     <Compile Include="PersonaAlmacen.cs" />
     <Compile Include="GamAlmacen.cs" />

@@ -8,6 +8,7 @@
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../bower_components/vaadin-upload/vaadin-upload.html">
 
 <link rel="import" href="my-icons.html">
 <link rel="import" href="tablas/tablas-soporte.html">
@@ -73,7 +74,15 @@
       <paper-icon-button icon="my-icons:sign-out" on-tap="logout" disabled$="[[__calculateDisabledLogout(__online,logged,numeroParticipantes)]]" ></paper-icon-button>
     </div-toolbar>
       
-    <div-card>      
+    <div-card>    
+      <vaadin-upload
+        target="/gam-api/soporte/crear"
+        method="POST"
+        headers="{'Accept': 'application/json'}"
+        timeout=15000
+        on-upload-request='__fileUploadRequest'
+        on-upload-before='__fileUploadBefore'>
+      </vaadin-upload>  
       <iron-pages
             selected="[[page]]"
             attr-for-selected="name"        
@@ -449,6 +458,18 @@
       __calculateDisabledLogout:function(online, logged, numeroParticipantes){
         console.log("__calcularMostarCerrar", online, logged, numeroParticipantes)
         return  !(online && logged &&  ( numeroParticipantes == 0));
+      },
+
+      __fileUploadRequest:function(evt, src){
+          //evt.detail.formData.append('EventoId', 1234);
+          //evt.detail.formData.append('Nombre', evt.detail.file.name);
+          evt.preventDefault();
+          evt.detail.xhr.send(evt.detail.file);
+      },
+
+      __fileUploadBefore:function(evt, src){
+        console.log ('__fileUploadBefore........');
+        evt.detail.file.uploadTarget = '/gam-api/soporte/crear?Nombre=' + evt.detail.file.name+'&EventoId='+1234;
       }
 
 

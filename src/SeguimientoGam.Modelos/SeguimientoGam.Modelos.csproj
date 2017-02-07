@@ -52,6 +52,7 @@
     <Compile Include="Entidades\PreguntaPlantillaEncuesta.cs" />
     <Compile Include="Entidades\Regional.cs" />
     <Compile Include="Entidades\RespuestaEncuestaGam.cs" />
+    <Compile Include="Entidades\Soporte.cs" />
     <Compile Include="Extensiones\BoolExtensions.cs" />
     <Compile Include="Extensiones\IntExtemsions.cs" />
     <Compile Include="Extensiones\StringExtensions.cs" />
@@ -60,8 +61,11 @@
     <Compile Include="InterfacesGestion\IGestorConsulta.cs" />
     <Compile Include="InterfacesGestion\IMiembroGamGestor.cs" />
     <Compile Include="InterfacesGestion\IRegionalGestor.cs" />
+    <Compile Include="InterfacesGestion\ISoporteGestor.cs" />
+    <Compile Include="InterfacesPersistencia\IArchivoSoporteAlmacena.cs" />
     <Compile Include="InterfacesPersistencia\IEventoCalendarioAlmacena.cs" />
     <Compile Include="InterfacesPersistencia\IMiembroGamAlmacena.cs" />
+    <Compile Include="InterfacesPersistencia\ISoporteAlmacena.cs" />
     <Compile Include="Interfaces\ActualizarResponse.cs" />
     <Compile Include="Interfaces\BorrarResponse.cs" />
     <Compile Include="Interfaces\CrearResponse.cs" />
@@ -90,6 +94,7 @@
     <Compile Include="Peticiones\RegionalConMunicipiosConsultar.cs" />
     <Compile Include="Peticiones\RegionalConsultar.cs" />
     <Compile Include="Peticiones\RegionalCrear.cs" />
+    <Compile Include="Peticiones\SoporteConsultar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="InterfacesPersistencia\IRegionalAlmacena.cs" />
     <Compile Include="InterfacesPersistencia\IAlmacenaEntidad.cs" />

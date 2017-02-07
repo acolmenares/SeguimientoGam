@@ -39,5 +39,10 @@ namespace SeguimientoGam.Modelos.InterfacesPersistencia
 
 		int Borrar<T>(int id) where T : IEntidad;
 		Task<int> BorrarAsync<T>(int id) where T : IEntidad;
-	}
+
+        void IniciarTransaccion();
+        void FinalizarTransaccion();
+        void CancelarTransaccion();
+
+    }
 }

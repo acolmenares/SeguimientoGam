@@ -14,9 +14,9 @@ namespace SeguimientoGam.Persistencia
 		readonly IAlmacenaEntidad repositorio;
 
 
-		protected Almacen(IAlmacenaEntidad respositorio)
+		protected Almacen(IAlmacenaEntidad repositorio)
         {
-            this.repositorio = respositorio;
+            this.repositorio = repositorio;
         }
 
 
