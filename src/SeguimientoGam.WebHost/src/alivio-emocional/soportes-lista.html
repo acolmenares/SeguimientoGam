@@ -1,0 +1,101 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../bower_components/paper-styles/color.html">
+<link rel="import" href="../shared-styles.html">
+<link rel="import" href="../my-icons.html">
+
+<dom-module id="soportes-lista">
+
+  <template>
+
+    <style include="shared-styles">
+     
+      :host{
+        display: block;
+        max-width: 380px;
+        max-height: 250px;
+        overflow-y: overlay;
+
+        /*background-color:var(--paper-grey-200) ;*/
+      }
+
+      .item{
+          position: relative;
+          background:var(--paper-grey-800);
+          color:var(--paper-grey-50);
+          /*width: 100%;*/
+      }
+
+     .nombre-completo{
+         margin: 2px auto 2px 2px;
+         padding: 2px 2px;
+      }          
+    
+    </style>       
+        <div class="card item horizontal">
+                       <div class="nombre-completo">Soportes</div>
+                       <paper-icon-button 
+                         icon="my-icons:arrow-forward" 
+                         on-tap="__continuar"
+                         disabled$="[[__calculateDisabledState(logged,online, item)]]"></paper-icon-button>
+        </div>
+
+               <template is="dom-repeat" items="[[soportes]]" id="lista">
+                   <div class="card item horizontal">
+                       <div class="nombre-completo" >[[item.Nombre]]</div>
+                       <paper-icon-button 
+                         icon="my-icons:delete" 
+                         on-tap="__borrar"
+                         disabled$="[[__calculateDisabledState(logged,online, item)]]"></paper-icon-button>
+                   </div>
+               </template>           
+    
+  </template>
+
+  <script>
+
+    Polymer({
+      is: 'soportes-lista',
+
+      ready:function(){
+        
+      },
+
+      properties: {
+
+         soportes:{
+           type:Array,
+           value:function(){return [{Nombre:"ñññap.pdf"}, {Nombre:"adsbs.jpg"}]}
+         },
+         
+         logged:{
+             type:Boolean
+         },
+
+         online:{
+             type:Boolean
+         }
+
+      },
+
+      __continuar:function(evt,src){
+          console.log("soportes lista continuar-con-soportes");
+          this.fire("continuar-con-soportes");
+      },
+
+      
+      __borrar:function(evt, src){
+        
+        this.fire("borrar", evt.model);
+      },
+
+      __calculateDisabledState:function(logged,online, item){
+          return !logged || !online || !item || item.uploading;
+      }
+            
+    });
+  </script>
+</dom-module>

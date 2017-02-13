@@ -1,7 +1,8 @@
 ﻿<%@ Page Language="C#" %>
 <!DOCTYPE html>
 <html>
-<head >
+<head>
+    <title></title>
     <script type="text/javascript" >
 	   /* window.location="gam-api/metadata"; */
 	</script>

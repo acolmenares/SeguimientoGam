@@ -1,0 +1,122 @@
+<script src="../../bower_components/lodash/lodash.min.js"></script>
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/vaadin-upload/vaadin-upload.html">
+
+<link rel="import" href="../shared-styles.html">
+<dom-module id="soportes-subir">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+        padding: 0px;
+        max-width: 400px;
+        margin: auto;
+      }
+      .upload-card{
+          background: var(--paper-grey-500);
+      }
+
+      vaadin-upload{
+        max-height: 550px;
+        overflow-y: overlay;
+      }
+    </style>
+    
+    <div class="card upload-card">
+      <div class="card-body">
+        <vaadin-upload
+          files="{{files}}"
+          target="/gam-api/soporte/crear"
+          method="POST"
+          headers="{'Accept': 'application/json'}"
+          timeout=0
+          on-upload-request='__fileUploadRequest'
+          on-upload-before='__fileUploadBefore'
+          on-upload-error='__uploadError'
+          on-upload-response='__uploadResponse'
+          on-upload-success='__uploadSuccess'>
+            <div class="file-list">
+                <ul>
+                    <template is="dom-repeat" items="{{files}}" as="file">
+                        <li>[[__calculateText(file.name, file.status, file.complete)]]</li>
+                    </template>
+                </ul>
+            </div>
+        </vaadin-upload>  
+      </div>
+
+      <div class="card-footer center-horizontal">
+        <paper-icon-button icon="my-icons:arrow-forward" class="giant done" on-tap="__continuar"  id="submitButton">
+        </paper-icon-button>
+      </div>
+      
+    </div>
+    <div style="height: 50px;"></div>
+  </template>
+
+  <script>
+    Polymer({
+      
+      is: 'soportes-subir',
+
+      properties:{
+          files:{
+              type:Array,
+              value : function () {return []}
+          }
+      },
+      
+      __continuar:function(evt, src){
+       this.fire('continuar');
+      },
+
+      __fileUploadRequest:function(evt, src){
+          //evt.detail.formData.append('EventoId', 1234);
+          //evt.detail.formData.append('Nombre', evt.detail.file.name);
+          evt.preventDefault();
+          evt.detail.xhr.send(evt.detail.file);
+      },
+
+      __fileUploadBefore:function(evt, src){
+        console.log ('__fileUploadBefore........', (this.encurso && this.encurso.EventoCalendario)? this.encurso.EventoCalendario.Id:"SinEvento", evt.detail.file);
+        evt.detail.file.uploadTarget = '/gam-api/soporte/crear?Nombre=' + evt.detail.file.name+'&EventoId='+this.encurso.EventoCalendario.Id;
+      },
+
+      __uploadError:function(evt, src){
+        console.log("uplodadError ", evt);
+        this.__checkStatusAndFire();
+      },
+
+      __uploadResponse:function(evt, scr){
+        console.log("__uploadResponse", evt);
+        //evt.detail.xhr.status = 200;
+        //evt.detail.xhr.statusText = "OK";
+       // evt.preventDefault();
+      },
+
+      __uploadSuccess:function(evt, src){
+        console.log("__uploadSuccess", evt.detail.file);
+        this.__checkStatusAndFire()
+        
+      },
+
+      __calculateText:function(name, status, complete){
+          return name +" " + status+ " " + (complete?"Si":"No");
+      },
+
+      __checkStatusAndFire:function(){
+          var finalizado= _.every(this.files, function(v) {  return typeof !v.status });
+          if(finalizado && this.encurso && this.encurso.EventoCalendario )
+          {
+              this.fire("finalizado", {EventoId: this.encurso.EventoCalendario});
+          }
+      }
+
+
+    });
+  </script>
+</dom-module>

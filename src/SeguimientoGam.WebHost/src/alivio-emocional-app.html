@@ -8,7 +8,6 @@
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
-<link rel="import" href="../bower_components/vaadin-upload/vaadin-upload.html">
 
 <link rel="import" href="my-icons.html">
 <link rel="import" href="tablas/tablas-soporte.html">
@@ -26,6 +25,7 @@
 <link rel="import" href="alivio-emocional/encuesta-encurso.html">
 <link rel="import" href="alivio-emocional/encuesta-card.html">
 <link rel="import" href="alivio-emocional/sin-informacion.html">
+<link rel="import" href="alivio-emocional/soportes-subir.html">
 <link rel="import" href="elements/termometro-elm/termometro-elm.html">
 
 <link rel="import" href="common/div-toolbar.html">
@@ -60,6 +60,7 @@
     <auth-service id="auth"></auth-service>
 
     <query-service id="queryEncuestas" model="encuestagam" last-response="{{encuestas}}"  ></query-service>
+    <query-service id="querySoportes" model="soporte" last-response="{{soportes}}"  ></query-service>
 
     <remote-service id="serviceRespuestaEncuesta" 
       query-model="encuestagam/respuestas"
@@ -75,16 +76,6 @@
     </div-toolbar>
       
     <div-card>    
-      <vaadin-upload
-        target="/gam-api/soporte/crear"
-        method="POST"
-        headers="{'Accept': 'application/json'}"
-        timeout=15000
-        on-upload-request='__fileUploadRequest'
-        on-upload-before='__fileUploadBefore'
-        on-upload-error='__uploadError'
-        on-upload-response='__uploadResponse'>
-      </vaadin-upload>  
       <iron-pages
             selected="[[page]]"
             attr-for-selected="name"        
@@ -101,7 +92,7 @@
         </sin-informacion>
         <login-elm  name="login"  on-try-login="__tryLoginHandler"></login-elm>
         <encuestas-disponibles name="encuestas" items="[[encuestas.Results]]" on-seleccionar="__seleccionarEncuesta"></encuestas-disponibles>
-        <encuesta-card  name="ficha" item="[[encurso]]" on-continuar='__continuarEncuesta' on-finalizar='__finalizarEncuesta' ></encuesta-card>
+        <encuesta-card  name="ficha" item="[[encurso]]" soportes="[[soportes.Results]]"  on-soportes="__continuarConSoportes" on-continuar='__continuarEncuesta' on-finalizar='__finalizarEncuesta' ></encuesta-card>
         <participantes-encuesta
           name="participantes"
           participantes="[[participantes]]"
@@ -112,6 +103,7 @@
           online="[[__online]]">
         </participantes-encuesta>
         <termometro-elm name="termometro" on-done='__aceptarActualizar' on-canceled='__cancelar'  id="termometro"></termometro-elm>
+        <soportes-subir name="soportes"  encurso="[[encurso]]" on-finalizado='__subirFinalizado' on-continuar='__cancelar' ></soportes-subir>
         <error-message  name="error" id="errorMessage" on-iron-overlay-closed="__cancelar"></error-message>
         <prompt-message name="prompt" id="promptMessage"></prompt-message>
       </iron-pages>
@@ -344,6 +336,10 @@
         this.__changeHref("participantes") ;
       },
 
+      __continuarConSoportes:function(){
+        this.__changeHref("soportes") ;
+      },
+
       __finalizarEncuesta:function(){
 
         this.$.promptMessage.mensaje="Digite el codigo de confirmación para finalizar la Encuesta";
@@ -437,7 +433,11 @@
             }.bind(this)
           );
         }
-        else{
+        else {
+          if(page=="ficha"){
+            this.$.querySoportes.params= { EventoId: this.encurso.EventoCalendario.Id };
+            this.$.querySoportes.execute();
+          }
           location.href="#/"+page ;
         }
 
@@ -462,33 +462,12 @@
         return  !(online && logged &&  ( numeroParticipantes == 0));
       },
 
-      __fileUploadRequest:function(evt, src){
-          //evt.detail.formData.append('EventoId', 1234);
-          //evt.detail.formData.append('Nombre', evt.detail.file.name);
-          evt.preventDefault();
-          evt.detail.xhr.send(evt.detail.file);
-      },
-
-      __fileUploadBefore:function(evt, src){
-        console.log ('__fileUploadBefore........', this.encurso.EventoCalendario.Id);
-        evt.detail.file.uploadTarget = '/gam-api/soporte/crear?Nombre=' + evt.detail.file.name+'&EventoId='+this.encurso.EventoCalendario.Id;
-      },
-
-      __uploadError:function(evt, src){
-        console.log("uplodadError ", evt);
-      },
-
-      __uploadResponse:function(evt, scr){
-        console.log("__uploadResponse", evt);
-        //evt.detail.xhr.status = 200;
-        //evt.detail.xhr.statusText = "OK";
-       // evt.preventDefault();
+      __subirFinalizado:function(evt, src){
+        this.$.querySoportes.params= { EventoId: evt.detail.EventoId };
+        this.$.querySoportes.execute();
       }
       
-
-
       /*
-
       online:SI      logged:NO     almacenVacio: SI  =>   login-elm
       online:SI      logged:SI     almacenVacio: SI  =>   encuestas-disponibles
 

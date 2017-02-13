@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 
+<link rel="import" href="soportes-lista.html">
 <link rel "import" href="../shared-styles.html">
 <link rel="import" href="../my-icons.html">
 
@@ -51,6 +52,7 @@
              <div class$="[[__classRealizacion(item)]]" >[[item.EventoCalendario.Realizacion]]</div>
            </div>  
            <p>[[__fechaConTitulo(item)]]</p>
+           <soportes-lista soportes="[[soportes]]"  on-continuar-con-soportes="__continuarConSoportes"></soportes-lista>
         </div>
         <div class="card-footer center-vertical ficha-footer">
           <paper-button class="continuar" on-tap="__continuar">Continuar con la encuesta<iron-icon icon="my-icons:arrow-forward"></iron-icon></paper-button>
@@ -82,13 +84,20 @@
       },
 
       __continuar:function(evt,src){
+          console.log("encuesta-card __continuars");
           this.fire("continuar")
 
       },
 
       __finalizar:function(evt, src){
           this.fire("finalizar")
+      },
+
+      __continuarConSoportes:function(evt,src){
+        console.log("encuesta-card __continuarConSoportes");
+        this.fire("soportes");
       }
+
 
     });
   </script>
