@@ -312,6 +312,7 @@ namespace SeguimientoGam.WebHost
 
             Routes.Add<SoporteCrear>("/soporte/crear", ApplyTo.Post);
             Routes.Add<SoporteConsultar>("/soporte/consultar", ApplyTo.Get);
+            Routes.Add<SoporteBorrar>("/soporte/borrar", ApplyTo.Post);
 
         }
 

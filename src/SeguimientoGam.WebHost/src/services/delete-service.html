@@ -2,7 +2,7 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="ajax-service.html">
 
-<dom-module id="create-service">
+<dom-module id="delete-service">
   <template>
     
     <ajax-service id='query'
@@ -22,7 +22,7 @@
   <script>
     Polymer({
 
-      is: 'create-service',
+      is: 'delete-service',
      
       hostAttributes: {
         hidden: true
@@ -32,7 +32,7 @@
         
         action: {
           type:String,
-          value: 'crear.json',
+          value: 'borrar.json',
         },
         
         lastResponse: { type:Object, value:function(){ return {}; }, notify: true },

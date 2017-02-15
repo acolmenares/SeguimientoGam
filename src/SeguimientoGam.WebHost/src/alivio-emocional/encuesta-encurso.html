@@ -16,7 +16,8 @@
 
       ready:function(){
         console.log("encuesta-encurso");
-        this.item = this.__getFromLocalStorage();
+        this.set("item", {});
+        this.set("item", this.__getFromLocalStorage()); 
       },
 
       properties: {

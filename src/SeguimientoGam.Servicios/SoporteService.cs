@@ -33,6 +33,11 @@ namespace SeguimientoGam.Servicios
             return Gestor.ConsultarAsync(peticion, Request).Result;
         }
 
+        public BorrarResponse Post(SoporteBorrar peticion)
+        {
+            return Gestor.BorrarAsync(peticion, Request).Result;
+        }
+
     }
 
     

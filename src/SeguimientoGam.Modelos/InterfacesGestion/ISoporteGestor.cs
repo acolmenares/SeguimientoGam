@@ -10,7 +10,7 @@ namespace SeguimientoGam.Modelos.InterfacesGestion
     public interface ISoporteGestor : ISoporteGestorConsultas//, IGestor<Soporte>
     {
         Task<CrearResponse<Soporte>> CrearAsync(SoporteCrear modelo);
-
+        Task<BorrarResponse> BorrarAsync(SoporteBorrar peticion, IRequest request);
     }
 
     public interface ISoporteGestorConsultas : IGestorConsulta<Soporte>

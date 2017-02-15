@@ -27,7 +27,7 @@
     </style>
     
     <div class="card upload-card">
-      <div class="card-body">
+      <div class="card-body" id="upload">
         <vaadin-upload
           files="{{files}}"
           target="/gam-api/soporte/crear"
@@ -69,6 +69,8 @@
               value : function () {return []}
           }
       },
+
+      observers:['__encursoChanged(encurso,logged, online)'],
       
       __continuar:function(evt, src){
        this.fire('continuar');
@@ -112,7 +114,16 @@
           var finalizado= _.every(this.files, function(v) {  return typeof !v.status });
           if(finalizado && this.encurso && this.encurso.EventoCalendario )
           {
-              this.fire("finalizado", {EventoId: this.encurso.EventoCalendario});
+              this.fire("finalizado", {EventoId: this.encurso.EventoCalendario.Id});
+          }
+      },
+
+      __encursoChanged:function(encurso, logged, online){
+          if(encurso  && online && logged){
+              this.$.upload.classList.remove("no-visible");
+          }
+          else{
+              this.$.upload.classList.add("no-visible");
           }
       }
 

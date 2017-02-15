@@ -52,11 +52,16 @@
              <div class$="[[__classRealizacion(item)]]" >[[item.EventoCalendario.Realizacion]]</div>
            </div>  
            <p>[[__fechaConTitulo(item)]]</p>
-           <soportes-lista soportes="[[soportes]]"  on-continuar-con-soportes="__continuarConSoportes"></soportes-lista>
+           <soportes-lista 
+             soportes="[[soportes]]" 
+             hidden$='[[__calculateHiddenState(item,logged,online)]]'  
+             on-continuar-con-soportes="__continuarConSoportes"
+             on-borrar="__borrarSoporte">
+           </soportes-lista>
         </div>
         <div class="card-footer center-vertical ficha-footer">
-          <paper-button class="continuar" on-tap="__continuar">Continuar con la encuesta<iron-icon icon="my-icons:arrow-forward"></iron-icon></paper-button>
-          <paper-button class="finalizar" on-tap="__finalizar">Finalizar Encuesta<iron-icon icon="my-icons:done"></iron-icon></paper-button>
+          <paper-button class="continuar" disabled$='[[__calcuateDisabledState(item)]]' on-tap="__continuar">Continuar con la encuesta<iron-icon icon="my-icons:arrow-forward"></iron-icon></paper-button>
+          <paper-button class="finalizar" disabled$='[[__calcuateDisabledState(item)]]' on-tap="__finalizar">Finalizar Encuesta<iron-icon icon="my-icons:done"></iron-icon></paper-button>
         </div> 
     </div>
   </template>
@@ -96,7 +101,20 @@
       __continuarConSoportes:function(evt,src){
         console.log("encuesta-card __continuarConSoportes");
         this.fire("soportes");
+      },
+
+      __borrarSoporte:function(evt, src){
+        this.fire("borrar-soporte", evt.detail);
+      },
+
+      __calculateHiddenState:function(item, logged,online){
+        return !item  || !logged || !online;
+      },
+
+      __calcuateDisabledState:function(item){
+        return !item;
       }
+
 
 
     });

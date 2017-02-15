@@ -27,5 +27,11 @@ namespace SeguimientoGam.Gestion.Entidades
         {
             return await repositorio.ConsultarAsync(modelo, peticion.GetRequestParams(), null);
         }
+
+        public async Task<BorrarResponse> BorrarAsync(SoporteBorrar peticion, IRequest request)
+        {
+            //repositorio.BorrarAsync(peticion.Id)
+            return await base.BorrarAsync(peticion.Id, request);
+        }
     }
 }
