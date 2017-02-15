@@ -26,6 +26,7 @@
 <link rel="import" href="alivio-emocional/encuesta-encurso.html">
 <link rel="import" href="alivio-emocional/encuesta-card.html">
 <link rel="import" href="alivio-emocional/sin-informacion.html">
+<link rel="import" href="alivio-emocional/encuesta-soportes.html">
 <link rel="import" href="alivio-emocional/soportes-subir.html">
 <link rel="import" href="elements/termometro-elm/termometro-elm.html">
 
@@ -97,11 +98,9 @@
         <encuesta-card  
           name="ficha" 
           item="[[encurso]]" 
-          soportes="[[soportes.Results]]"  
-          on-soportes="__continuarConSoportes" 
           on-continuar='__continuarEncuesta' 
           on-finalizar='__finalizarEncuesta'
-          on-borrar-soporte='__borrarSoporte'
+          on-continuar-con-soportes="__continuarConSoportes" 
           logged="[[logged]]"
           online="[[__online]]">
         </encuesta-card>
@@ -115,8 +114,18 @@
           online="[[__online]]">
         </participantes-encuesta>
         <termometro-elm name="termometro" on-done='__aceptarActualizar' on-canceled='__cancelar'  id="termometro"></termometro-elm>
-        <soportes-subir 
-          name="soportes"  
+        <encuesta-soportes  
+          name="soportes" 
+          item="[[encurso]]" 
+          soportes="[[soportes.Results]]"  
+          on-subir-soportes="__subirSoportes" 
+          on-borrar-soporte='__borrarSoporte'
+          logged="[[logged]]"
+          online="[[__online]]"
+          on-finalizar="__finalizarSoportes">
+        </encuesta-soportes>
+        <soportes-subir id="subir"
+          name="subir-soportes"  
           encurso="[[encurso]]" 
           on-finalizado='__subirFinalizado' 
           on-continuar='__cancelar'
@@ -375,7 +384,17 @@
       },
 
       __continuarConSoportes:function(){
-        this.__changeHref("soportes") ;
+
+        this.__preguntarCodigoConfirmacion("Digite el codigo de confirmación",
+          function(){
+            this.__changeHref("soportes") ;
+          }.bind(this),
+          "ficha");
+
+      },
+
+      __subirSoportes:function(){
+        this.__changeHref("subir-soportes") ;
       },
 
       __finalizarEncuesta:function(){
@@ -520,9 +539,26 @@
       __borrarSoporte:function(evt, src){
         this.$.deleteSoportes.params= {Id: evt.detail.item.Id };
         this.$.deleteSoportes.execute(
+          
           function(response){
+            
             var index = _.findIndex(this.soportes.Results, function(o) { return o.Id == evt.detail.item.Id; });
+            
+            var name = this.soportes.Results[index].Nombre;
+
+            name = name.substring(name.indexOf("_")+1);
+            console.log("NOmbre y name", this.soportes.Results[index].Nombre, name ) ;
+
             this.splice("soportes.Results", index,1);
+
+            
+
+            index = _.findIndex(this.$.subir.files, function(o) { return o.name ==  name; });
+            if(index>=0){
+              this.$.subir.splice("files", index,1);
+            }
+
+
           }.bind(this),
           function(error){
             this.__showError(error);
@@ -556,6 +592,10 @@
         this.__changeHref("prompt") ;
         this.$.promptMessage.open();
 
+      },
+
+      __finalizarSoportes:function(){
+        this.__changeHref("ficha") ;
       }
       
       /*

@@ -1,0 +1,98 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<link rel="import" href="soportes-lista.html">
+<link rel "import" href="../shared-styles.html">
+<link rel="import" href="../my-icons.html">
+
+<dom-module id="encuesta-soportes">
+
+  <template>
+     <style  include="shared-styles">
+      
+      :host {
+        display: block;
+        padding: 0;
+        margin: 0 auto;
+        max-width: 400px;
+      }
+
+      .continuar{
+          background: var(--paper-green-500);
+          color: white !important;
+          width: 100%;
+          margin: 2px;
+      }
+
+      .finalizar{
+          background:  var(--paper-blue-500);
+          color: white !important;
+          width: 100%;
+          margin: 2px;
+      }
+
+      .ficha{
+          background: var(--paper-grey-500);
+      }
+
+      .ficha-footer{
+          padding: 20px;
+      }
+
+      iron-icon{
+          margin-left: auto;
+      }
+
+       paper-button[disabled] {
+         background: var(--paper-grey-400);
+      }
+      
+    </style>
+    <div class="card ficha" >
+        <div class="card-body">
+           <soportes-lista 
+             soportes="[[soportes]]" 
+             hidden$='[[__calculateHiddenState(item,logged,online)]]'  
+             on-subir-soportes="__subirSoportes"
+             on-borrar="__borrarSoporte">
+           </soportes-lista>
+        </div>
+        <div class="card-footer center-horizontal">
+          <paper-icon-button icon="my-icons:done" class="giant done" on-tap="__finalizar"  id="submitButton">
+          </paper-icon-button>
+        </div>
+    </div>
+    <div style="height: 50px;"></div>
+  </template>
+  <script>
+    
+    Polymer({
+      
+      is: 'encuesta-soportes',
+      
+      properties: {
+      },
+
+      __finalizar:function(evt, src){
+          this.fire("finalizar")
+      },
+
+      __subirSoportes:function(evt,src){
+        console.log("encuesta-card __continuarConSoportes");
+        this.fire("subir-soportes");
+      },
+
+      __borrarSoporte:function(evt, src){
+        this.fire("borrar-soporte", evt.detail);
+      },
+
+      __calculateHiddenState:function(item, logged,online){
+        return !item  || !logged || !online;
+      }
+
+    });
+  </script>
+
+</dom-module>
