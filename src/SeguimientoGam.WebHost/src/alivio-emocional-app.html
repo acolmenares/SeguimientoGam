@@ -138,7 +138,10 @@
 
       ready:function(){   
 
+        
+
         this.async( function(){
+
           console.log("+++++++++++   READY ++++++++++++");
           if( navigator.onLine && this.__sesion && this.__sesion.UserId){
             var auth = this.authenticate("","");
@@ -196,50 +199,21 @@
       },
 
       __subrouteChanged:function(subroute){
+                
         console.log("__subrouteChanged subroute" , subroute);
-        if( subroute  && subroute.prefix){   
+        
+        if( subroute  && subroute.prefix)
+        {   
           
-          var page=subroute.prefix.replace("/","");
+          var page=subroute.prefix.replace("/","");        
           
-          if(this.page=="prompt"){
+          if(this.page=="prompt")
+          {
             this.__aceptarPrompt=false;
             this.$.promptMessage.cancel();
           }
-          
-          if(page=="prompt" && ! this.__aceptarPrompt ){
-            console.log( "vamos no es valido hacer prompb", this.page);
-            history.replaceState("","", location.pathname+"#/"+ this.page );
-            location.replace("#/"+this.page)
-            return;
-          }
-
-          if ((this.page=="participantes" ) && page=="ficha" ){
-            this.__preguntarCodigoConfirmacion("Digite el codigo de confirmación",
-            function(){
-              this.page=page;
-            }.bind(this),
-            "participantes");
-            return;
-          }
-
           this.page=page;
-          //this.page=page;
-          /*
-          if ((this.page=="participantes" ) && page=="ficha" ){
-            this.__preguntarCodigoConfirmacion("Digite el codigo de confirmación",
-            function(){
-              this.page=page;
-            }.bind(this),
-            "participantes");
-
-          }
-          else{
-            if(page=="prompt"){
-              this.$.promptMessage.open();
-            }
-            this.page=page;
-          }*/
-
+          
         }
       },
 
@@ -406,7 +380,11 @@
 
       __finalizarEncuesta:function(){
         console.log("finalizarEncuesta", this.page);
-        this.__preguntarCodigoConfirmacion("Digite el codigo de confirmación para finalizar la Encuesta", this.__aceptarFinalizarEncuesta,"ficha");
+        this.__preguntarCodigoConfirmacion("Digite el codigo de confirmación para finalizar la Encuesta",
+          function(){
+            this.__aceptarFinalizarEncuesta()
+          }.bind(this),
+          "ficha");
       },
 
 
@@ -459,6 +437,7 @@
 
       __changeHref:function(page){
         // revisar si es la pagina de "encuestas",  hacer peticion, mostrar spinner
+
         if(page=="encuestas"){
           
           this.$.queryEncuestas.params= { EncargadoId: this.__sesion.UserId };
@@ -554,7 +533,7 @@
 
 
       __preguntarCodigoConfirmacion:function(message, callback, failurePage){
-        this.__aceptarPrompt=true;
+
         console.log("__preguntarCodigoConfirmacion",  this.page);
         
         this.$.promptMessage.mensaje=message;
@@ -566,7 +545,6 @@
             else{
               if(failurePage){
                console.log("nos vamos por failure:", failurePage);
-               history.replaceState("","", location.pathname+"#/"+ failurePage );
                location.replace("#/"+failurePage)
               }
               else{
