@@ -30,7 +30,7 @@
       <div class="card-body" id="upload">
         <vaadin-upload
           files="{{files}}"
-          target="/gam-api/soporte/crear"
+          target="gam-api/soporte/crear.json"
           method="POST"
           headers="{'Accept': 'application/json'}"
           timeout=0
@@ -85,7 +85,7 @@
 
       __fileUploadBefore:function(evt, src){
         console.log ('__fileUploadBefore........', (this.encurso && this.encurso.EventoCalendario)? this.encurso.EventoCalendario.Id:"SinEvento", evt.detail.file);
-        evt.detail.file.uploadTarget = '/gam-api/soporte/crear?Nombre=' + evt.detail.file.name+'&EventoId='+this.encurso.EventoCalendario.Id;
+        evt.detail.file.uploadTarget = 'gam-api/soporte/crear.json?Nombre=' + evt.detail.file.name+'&EventoId='+this.encurso.EventoCalendario.Id;
       },
 
       __uploadError:function(evt, src){
