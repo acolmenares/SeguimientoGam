@@ -93,7 +93,7 @@
           on-finalizar='__finalizarSesion'
           encurso="[[encurso]]">
         </sin-informacion>
-        <login-elm  name="login"  on-try-login="__tryLoginHandler"></login-elm>
+        <login-elm  name="login" on-try-login="__tryLoginHandler" id="login"></login-elm>
         <encuestas-disponibles name="encuestas" items="[[encuestas.Results]]" on-seleccionar="__seleccionarEncuesta"></encuestas-disponibles>
         <encuesta-card  
           name="ficha" 
@@ -239,13 +239,14 @@
 
 
       __tryLoginHandler:function(evt, src){
-      
-        var auth =this.authenticate(evt.detail.username,evt.detail.password);  // TODO MOSTRAR SPINNER , CALCULAR PAGINA
-        
-        auth.then( function(logged){
-          this.__changeHref(this.__calculatePage()); 
-        }.bind(this));      
 
+        this.$.login.authenticating=true;
+        var auth =this.authenticate(evt.detail.username,evt.detail.password);  // TODO MOSTRAR SPINNER , CALCULAR PAGINA              
+        auth.then( function(logged){
+          this.$.login.authenticating=false;
+          this.__changeHref(this.__calculatePage()); 
+        }.bind(this));    
+          
       },
 
       authenticate:function(username, password){

@@ -46,7 +46,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <tablas-soporte></tablas-soporte>
     <auth-service id="auth"></auth-service>
     <template is="dom-if" if="{{!logged}}">  
-      <login-elm  on-try-login="__tryLoginHandler" ></login-elm>
+      <login-elm  on-try-login="__tryLoginHandler" id="login"></login-elm>
     </template>
     <template restamp is="dom-if" if="{{logged}}">
       <gam-app-menu  on-logout="logout" ></gam-app-menu> 
@@ -77,27 +77,42 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       },
 
+
       __tryLoginHandler:function(evt, src){
-        this.authenticate(evt.detail.username,evt.detail.password);
+        console.log(evt, src);
+
+        var login = evt.target;
+        login.authenticating=true;
+
+        this.authenticate(evt.detail.username,evt.detail.password)
+        .then(function(logged){ 
+          login.authenticating=false
+        });
 
       },
 
       authenticate:function(username, password){
-        
+
         var auth = this.$.auth;
         var self=this;
-        auth.login({ username: username, password: password}, 
-          function(response)
-          {
-            self.logged=true;
-            //location.href="#/gam"
-          },
-          function(err)
-          {
-            self.logged=false;
-          }
-        );
-        
+
+        return new Promise( function(resolve, reject){
+          auth.login({ username: username, password: password}, 
+            function(response)
+            {
+              self.logged=true;
+              //location.href="#/gam"  
+            },
+            function(err)
+            {
+              self.logged=false;
+            },
+            function(){
+              resolve(self.logged)  ;
+            }
+          );
+        })
+    
       },
 
       logout:function(){

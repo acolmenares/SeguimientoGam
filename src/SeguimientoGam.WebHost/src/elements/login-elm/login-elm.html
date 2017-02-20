@@ -2,6 +2,7 @@
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../busy-spinner/busy-spinner.html">
 <link rel="import" href="../../my-icons.html">
 
 <dom-module id="login-elm">
@@ -37,6 +38,7 @@
             </paper-icon-button>
           </div>
         </paper-card>
+        <busy-spinner id="spinner"></busy-spinner>
         
   </template>
 
@@ -45,8 +47,11 @@
       
       is: 'login-elm',
       
-      properties: {
-         
+      properties:{
+        authenticating:{
+          type:Boolean,
+          observer:'__authenticatingChanged'
+        }
       },
 
       validar:function(){
@@ -62,7 +67,9 @@
         }
       },
 
-
+      __authenticatingChanged:function(authenticating){
+        this.$.spinner.opened=authenticating;
+      }
 
     });
   </script>
