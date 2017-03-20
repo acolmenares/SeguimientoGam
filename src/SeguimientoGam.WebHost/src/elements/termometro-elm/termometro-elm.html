@@ -25,6 +25,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply --layout-vertical;
       }
 
+      .qcard {
+        padding: 4px 10px;
+        border-radius: 4px;
+        background-color:var(--paper-grey-300);
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+
+
       .figura{
         width: 100%;
         height: 75px;
@@ -56,7 +64,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
       
     </style>
-         <h2>Como considera que se encuentra dentro del proceso de Alivio Emocional:</h2>
+         <div class="qcard">Después de este encuentro señala uno de los niveles en los que te encuentras frente al proceso que estás viviendo de alivio emocional </div>
+        
          <paper-icon-button index="0" toggles on-tap="__onButtonTap" class="figura" src$="[[__calculateFigureSrc(selected,0,'me_siento_muy_mal')]]" ></paper-icon-button>
          <paper-icon-button index="1" toggles on-tap="__onButtonTap" class="figura" src$="[[__calculateFigureSrc(selected,1,'me_siento_algo_mal')]]"></paper-icon-button>
          <paper-icon-button index="2" toggles on-tap="__onButtonTap" class="figura" src$="[[__calculateFigureSrc(selected,2,'me_siento_ni_muy_mal')]]"></paper-icon-button>

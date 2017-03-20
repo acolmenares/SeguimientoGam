@@ -28,6 +28,7 @@
       <div class="card-body">
          <paper-input name="Nombres" label="Nombres" required auto-validate></paper-input>
          <paper-input name="Apellidos" label="Apellidos" required auto-validate></paper-input>
+         <!--
          <vaadin-date-picker name="FechaNacimiento" label="Fecha Nacimiento" id="fechaNacimiento" ></vaadin-date-picker>
          <vaadin-combo-box name="TipoDocumento"
            label="Tipo Documento"
@@ -36,7 +37,7 @@
         </vaadin-combo-box>
 
          <paper-input name="Documento" label="Documento" maxlength=16 required auto-validate></paper-input>
-         
+         !-->
          <vaadin-combo-box name="Genero"
            label="Genero"
            items="[[generos]]"
@@ -62,7 +63,7 @@
       is: 'miembro-gam-crear',
 
       ready:function(){
-        window.aicl.localizeCalendar(this.$.fechaNacimiento);
+       /*window.aicl.localizeCalendar(this.$.fechaNacimiento);*/
       },
       
       __aceptar:function(evt, src){

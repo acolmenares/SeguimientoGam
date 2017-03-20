@@ -16,21 +16,27 @@
       :host{
         display: block;
         max-width: 380px;
-        /*background-color:var(--paper-grey-200) ;*/
       }
 
       .persona{
           position: relative;
           background:var(--paper-grey-800);
           color:var(--paper-grey-50);
-          
-          /*width: 100%;*/
+          width: 100%;
+          margin-right: auto;
+      }
+
+      .upload{
+          position: relative;
+          background:var(--paper-grey-800);
+          color:var(--paper-grey-50);
+          margin: 0px;
+          padding: 2px;
       }
 
      .nombre-completo{
-         
-         margin: 2px auto 2px 2px;
-         padding: 2px 2px;
+         width: 100%;
+         padding:4px;
       }
       
       paper-ripple{
@@ -68,15 +74,19 @@
         <paper-input value="{{filtro}}" label="Nombre o Apellido para buscar"></paper-input>
            
                <template is="dom-repeat" items="[[participantes]]" filter="__filtrar" id="lista">
-                   <div class="card persona horizontal">
-                       <div class="nombre-completo" on-tap="__update" >[[item.MiembroGam.NombreCompleto]]</div>
-                       <div class$="[[__calcularClaseLed(item)]]"></div>
-                       <paper-icon-button 
-                         class$="[[__calcularClaseUploadBtn(item)]]"
-                         icon="my-icons:cloud-upload" 
-                         on-tap="__upload"
-                         disabled$="[[__calculateDisabledState(logged,online, item)]]"></paper-icon-button>
-                       <paper-ripple></paper-ripple>
+                   <div class="horizontal">
+                   <div class="card persona horizontal" on-tap="__update" >    
+                     <div class="nombre-completo"  >[[item.MiembroGam.NombreCompleto]]</div>
+                     <div class$="[[__calcularClaseLed(item)]]"></div>
+                     <paper-ripple></paper-ripple>
+                   </div> 
+                   <div class="card upload">      
+                     <paper-icon-button 
+                       class$="[[__calcularClaseUploadBtn(item)]]"
+                       icon="my-icons:cloud-upload" 
+                       on-tap="__upload"
+                       disabled$="[[__calculateDisabledState(logged,online, item)]]"></paper-icon-button>
+                   </div>
                    </div>
                </template>           
     

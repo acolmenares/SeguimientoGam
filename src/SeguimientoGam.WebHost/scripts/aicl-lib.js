@@ -219,6 +219,7 @@
 	* @param {vaadin-date-picker}
 	*/
 	window.aicl.localizeCalendar=function(calendario){
+		if(!calendario) return;
         calendario.i18n = {
           week: 'semana',
           calendar: 'calendario',

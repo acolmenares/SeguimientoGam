@@ -29,6 +29,7 @@
          <paper-input name="Id" hidden id="id"></paper-input>
          <paper-input name="Nombres" label="Nombres" required auto-validate id="nombres"></paper-input>
          <paper-input name="Apellidos" label="Apellidos" required auto-validate id="apellidos"></paper-input>
+         <!--
          <vaadin-date-picker name="FechaNacimiento" label="Fecha Nacimiento" id="fechaNacimiento" ></vaadin-date-picker>
          <vaadin-combo-box name="TipoDocumento"
            label="Tipo Documento"
@@ -38,7 +39,7 @@
         </vaadin-combo-box>
 
          <paper-input name="Documento" label="Documento" maxlength=16 required auto-validate id="documento"></paper-input>
-         
+         !-->
          <vaadin-combo-box name="Genero"
            label="Genero"
            items="[[generos]]"
@@ -66,7 +67,7 @@
       is: 'miembro-gam-actualizar',
 
       ready:function(){
-        window.aicl.localizeCalendar(this.$.fechaNacimiento);
+        //window.aicl.localizeCalendar(this.$.fechaNacimiento);*/
       },
       
       __aceptar:function(evt, src){
@@ -94,9 +95,9 @@
         this.$.id.value=data.Id;
         this.$.nombres.value= data.Nombres;
         this.$.apellidos.value= data.Apellidos;
-        this.$.fechaNacimiento.value = window.aicl.formatDate(data.FechaNacimiento);
+        /*this.$.fechaNacimiento.value = window.aicl.formatDate(data.FechaNacimiento);
         this.$.tipoDocumento.value= data.TipoDocumento;
-        this.$.documento.value= data.Documento;
+        this.$.documento.value= data.Documento;*/
         this.$.genero.value = data.Genero;
       }
 
